@@ -1,3 +1,6 @@
+if haskey(ENV, "JULIA_LOAD_PATH")
+    println("Please unset the JULIA_LOAD_PATH environment variable.")
+end
 if !haskey(ENV, "BAPCOD_RCSP_LIB")
     println(
         "Please set the environment variable BAPCOD_RCSP_LIB to the complete file path of the BaPCod/RCSP library.",
@@ -9,6 +12,10 @@ end
 
 using Pkg
 Pkg.activate(joinpath(@__DIR__, ".."))
+Pkg.add(url = "https://github.com/atoptima/Coluna.jl.git", rev = "master")
+Pkg.add(url = "https://github.com/atoptima/ColunaVrpSolver.jl.git", rev = "using_bapcod")
+Pkg.instantiate()
+
 
 using CVRPSolverDemo
 
