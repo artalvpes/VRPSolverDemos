@@ -6,4 +6,6 @@
 
 **Running the demo:** The environment variable `BAPCOD_RCSP_LIB` should be set with the path to the VRPSolver-library binary file (including its name) whenever you run this demo. Then, inside the directory where you cloned this repository, just type `julia src/run.jl data/A/A-n37-k6.vrp -m 6 -M 6 -u 950` to solve a small classical CVRP instance providing an initial upper bound.
 
+**Reporting issues:** This is an ongoing work. Even the original VRPSolver interface is not complete. I am waiting for nice examples from you to implement and test the features that are missing and fix bugs. So, when reporting bugs, please choose examples as small as possible and provide the necessary data to reproduce the issue and describe the expected behavior (the optimal solution and its cost, for example).
+
 **Acknowledgements:** This demo package uses the [Coluna](https://github.com/atoptima/Coluna.jl) package which implements a full Branch-and-Price algorithm in Julia, and is provided by [AtOptima](https://atoptima.com). The current version uses only the Julia interface provided by Coluna as a wrapper to VRPSolver but the full integration with Coluna is a possible future work.
