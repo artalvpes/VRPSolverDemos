@@ -1,6 +1,6 @@
 # CVRPSolverDemo
 
-**Requirements:** Windows or MacOS (use [Docker](https://www.docker.com) or [WSL](https://learn.microsoft.com/en-gb/windows/wsl/) to run in Windows), [Julia](https://julialang.org) version 1.6 or greater with [CPLEX](https://www.ibm.com/br-pt/products/ilog-cplex-optimization-studio) properly installed (see instructions below), and a [VRPSolver](https://vrpsolver.math.u-bordeaux.fr)-library binary file that can be downloaded from [here](https://drive.google.com/drive/folders/15hRXyZljTOQJVGqNQnhrEpgjGxcP41V5?usp=sharing).
+**Requirements:** Linux or MacOS (use [Docker](https://www.docker.com) or [WSL](https://learn.microsoft.com/en-gb/windows/wsl/) to run in Windows), [Julia](https://julialang.org) version 1.6 or greater with [CPLEX](https://www.ibm.com/br-pt/products/ilog-cplex-optimization-studio) properly installed (see instructions below), and a [VRPSolver](https://vrpsolver.math.u-bordeaux.fr)-library binary file that can be downloaded from [here](https://drive.google.com/drive/folders/15hRXyZljTOQJVGqNQnhrEpgjGxcP41V5?usp=sharing).
 
 **CPLEX installation on Julia:** The environment variable `CPLEX_STUDIO_BINARIES` should be set with the path to the CPLEX binaries folder before running this demo for the first time. To test this installation, please enter the Julia REPL (type `julia` in a terminal window) and type `]` (without `Enter`), and then `add CPLEX`, and `build`. If no error occurs, you are ready.
 
