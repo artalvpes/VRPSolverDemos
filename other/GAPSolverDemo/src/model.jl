@@ -21,7 +21,7 @@ function build_model(data::DataGap)
         G = VrpGraph(gap, V, v_source, v_sink, (L, U))
 
         cap_res_id = add_resource!(G, main = true) # R = Rᴹ = {cap_res_id}
-        arc_plus_ids = [] # arc_plus_ids[t] is the id for the arc (t-1,t) with positive resource consumption
+        arc_plus_ids = Vector{Int}[] # arc_plus_ids[t] is the id for the arc (t-1,t) with positive resource consumption
 
         # Build A
         for t in 1:length(T)
@@ -42,7 +42,7 @@ function build_model(data::DataGap)
         return G, arc_plus_ids
     end
 
-    graphs, packing_set_arcs = [], [[] for t in T]
+    graphs, packing_set_arcs = VrpGraph[], [Int[] for t in T]
     for k in K
         G, arc_plus_ids = build_graph(k)
         add_graph!(gap, G)
@@ -51,7 +51,7 @@ function build_model(data::DataGap)
         packing_set_arcs = [vcat(packing_set_arcs[t], arc_plus_ids[t]) for t in 1:length(T)]
     end
 
-    #set_arc_packing_sets!(gap, [[(graphs[k],packing_set_arcs[t][k]) for k in K] for t in T]) 
+    set_arc_packing_sets!(gap, [[(graphs[k], packing_set_arcs[t][k]) for k in K] for t in T])
     set_branching_priority!(gap, "x", 1)
 
     return (gap, x)
