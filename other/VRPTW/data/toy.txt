@@ -1,0 +1,18 @@
+toy
+
+VEHICLE
+NUMBER     CAPACITY
+  3         50
+
+CUSTOMER
+CUST NO.  XCOORD.    YCOORD.    DEMAND   READY TIME   DUE DATE   SERVICE TIME
+ 
+    0      40         50          0          0       3390          0   
+    1      52         75         10          0       3272         90   
+    2      45         70         30          0       3279         90   
+    3      62         69         10          0       3270         90   
+    4      60         66         10       1261       1421         90   
+    5      42         65         10          0       3284         90   
+    6      16         42         20        497        657         90   
+    7      58         70         20          0       3273         90   
+    8      34         60         20       2887       3047         90   
