@@ -12,8 +12,8 @@ end
 
 using Pkg
 Pkg.activate(joinpath(@__DIR__, ".."))
-Pkg.add(url = "https://github.com/atoptima/Coluna.jl.git", rev = "master")
-# Pkg.add(url = "https://github.com/atoptima/ColunaVrpSolver.jl.git", rev = "using_bapcod")
+Pkg.add(url="https://github.com/atoptima/Coluna.jl.git", rev="master")
+Pkg.add(url="https://github.com/atoptima/ColunaVrpSolver.jl.git", rev="using_bapcod")
 Pkg.instantiate()
 
 
