@@ -1,4 +1,4 @@
-function build_model(data::DataCVRP, app::Dict{String, Any})
+function build_model(data::DataCVRP, app::Dict{String,Any})
 
     E = edges(data) # set of edges of the input graph G′
     n = nb_customers(data)
@@ -24,7 +24,7 @@ function build_model(data::DataCVRP, app::Dict{String, Any})
 
         # node ids of G from 0 to n
         G = VrpGraph(cvrp, V, v_source, v_sink, (L, U))
-        cap_res_id = add_resource!(G, main = true) # R = R_M = {cap_res_id}
+        cap_res_id = add_resource!(G, main=true) # R = R_M = {cap_res_id}
 
         for i in V
             l_i, u_i = 0.0, Float64(Q) # accumulated resource consumption interval [l_i, u_i] for the vertex i
@@ -55,6 +55,17 @@ function build_model(data::DataCVRP, app::Dict{String, Any})
     add_capacity_cut_separator!(cvrp, [([(G, i)], d(data, i)) for i in V⁺], Q)
 
     set_branching_priority!(cvrp, "x", 1)
+
+    function edge_ub_callback()
+        for (i, j) in E
+            e = (i, j)
+            if i != 0 && value(x[e]) > 1.001
+                println("Adding edge ub cut for e = ", e)
+                add_dynamic_constr!(cvrp.optimizer, [x[e]], [1.0], <=, 1.0, "edge_ub")
+            end
+        end
+    end
+    add_cut_callback!(cvrp, edge_ub_callback, "edge_ub")
 
     return (cvrp, x)
 end

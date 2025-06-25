@@ -1,6 +1,6 @@
 __precompile__(false)
 module VRPTWSolverDemo
-using ColunaVrpSolver, JuMP, ArgParse
+using VrpSolver, JuMP, ArgParse
 
 
 include("data.jl")
@@ -8,39 +8,39 @@ include("model.jl")
 include("solution.jl")
 
 function parse_commandline(args_array::Array{String,1}, appfolder::String)
-   s = ArgParseSettings(usage="##### VRPSolver #####\n\n"*
-	   "  On interactive mode, call main([\"arg1\", ..., \"argn\"])", exit_after_help=false)
+   s = ArgParseSettings(usage="##### VRPSolver #####\n\n" *
+                              "  On interactive mode, call main([\"arg1\", ..., \"argn\"])", exit_after_help=false)
    @add_arg_table s begin
       "instance"
-         help = "Instance file path"
+      help = "Instance file path"
       "--cfg", "-c"
-         help = "Configuration file path"
-         default = "$appfolder/../config/VRPTW_set_1.cfg"
-      "--ub","-u"
-         help = "Upper bound (primal bound)"
-         arg_type = Float64
-         default = 10000000.0
-      "--enable_cap_res","-e"
-         help = "Enable capacity resource"
-         action = :store_true
-      "--sol","-s"
-         help = "Solution file path (e.g., see sol/C203.sol)"
-      "--out","-o"
-         help = "Path to write the solution found"
-      "--tikz","-t"
-         help = "Path to write the TikZ figure of the solution found."
-      "--nosolve","-n"
-         help = "Does not call the VRPSolver. Only to draw a given solution."
-         action = :store_true
-      "--batch","-b" 
-         help = "batch file path" 
+      help = "Configuration file path"
+      default = "$appfolder/../config/VRPTW_set_1.cfg"
+      "--ub", "-u"
+      help = "Upper bound (primal bound)"
+      arg_type = Float64
+      default = 10000000.0
+      "--enable_cap_res", "-e"
+      help = "Enable capacity resource"
+      action = :store_true
+      "--sol", "-s"
+      help = "Solution file path (e.g., see sol/C203.sol)"
+      "--out", "-o"
+      help = "Path to write the solution found"
+      "--tikz", "-t"
+      help = "Path to write the TikZ figure of the solution found."
+      "--nosolve", "-n"
+      help = "Does not call the VRPSolver. Only to draw a given solution."
+      action = :store_true
+      "--batch", "-b"
+      help = "batch file path"
    end
    return parse_args(args_array, s)
 end
 
 function run_vrptw(app::Dict{String,Any})
    println("Application parameters:")
-   for (arg,val) in app
+   for (arg, val) in app
       println("  $arg  =>  $(repr(val))")
    end
    flush(stdout)
@@ -59,7 +59,7 @@ function run_vrptw(app::Dict{String,Any})
       (model, x) = build_model(data, app)
       optimizer = VrpOptimizer(model, app["cfg"], instance_name)
       set_cutoff!(optimizer, app["ub"])
-   
+
       (status, solution_found) = optimize!(optimizer)
       if solution_found
          sol = getsolution(data, x, get_objective_value(optimizer), optimizer)

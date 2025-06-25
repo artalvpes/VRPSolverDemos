@@ -1,6 +1,6 @@
 __precompile__(false)
 module CVRPSolverDemo
-using ColunaVrpSolver, JuMP, ArgParse
+using VrpSolver, JuMP, ArgParse
 
 include("data.jl")
 include("model.jl")
@@ -8,8 +8,8 @@ include("solution.jl")
 
 function parse_commandline(args_array::Vector{String}, appfolder::String)
     s = ArgParseSettings(
-        usage = "##### VRPSolver #####\n\n" *
-                "  On interactive mode, call main([\"arg1\", ..., \"argn\"])", exit_after_help = false)
+        usage="##### VRPSolver #####\n\n" *
+              "  On interactive mode, call main([\"arg1\", ..., \"argn\"])", exit_after_help=false)
     @add_arg_table s begin
         "instance"
         help = "Instance file path"
@@ -48,7 +48,7 @@ function parse_commandline(args_array::Vector{String}, appfolder::String)
     return parse_args(args_array, s)
 end
 
-function run_cvrp(app::Dict{String, Any})
+function run_cvrp(app::Dict{String,Any})
     println("Application parameters:")
     for (arg, val) in app
         println("  $arg  =>  $(repr(val))")

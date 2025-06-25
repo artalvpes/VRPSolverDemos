@@ -1,16 +1,16 @@
 __precompile__(false)
 module PDPTWSolverDemo
-using ColunaVrpSolver, JuMP, ArgParse
+using VrpSolver, JuMP, ArgParse
 
 
 include("data.jl")
 include("model.jl")
 include("solution.jl")
 
-function parse_commandline(args_array::Array{String, 1}, appfolder::String)
+function parse_commandline(args_array::Array{String,1}, appfolder::String)
     s = ArgParseSettings(
-        usage = "##### VRPSolver #####\n\n" *
-                "  On interactive mode, call main([\"arg1\", ..., \"argn\"])", exit_after_help = false)
+        usage="##### VRPSolver #####\n\n" *
+              "  On interactive mode, call main([\"arg1\", ..., \"argn\"])", exit_after_help=false)
     @add_arg_table s begin
         "instance"
         help = "Instance file path"
@@ -54,7 +54,7 @@ function parse_commandline(args_array::Array{String, 1}, appfolder::String)
     return parse_args(args_array, s)
 end
 
-function run_pdptw(app::Dict{String, Any})
+function run_pdptw(app::Dict{String,Any})
     println("Application parameters:")
     for (arg, val) in app
         if val == nothing
@@ -91,7 +91,7 @@ function run_pdptw(app::Dict{String, Any})
         solution_found = false
         if !app["nosolve"]
             for k in app["maxr"]:-1:app["minr"]
-                (model, x) = build_model(data, app, k = k) # problem with fixed fleet with k vehicles
+                (model, x) = build_model(data, app, k=k) # problem with fixed fleet with k vehicles
                 optimizer = VrpOptimizer(model, app["cfg"], instance_name)
                 set_cutoff!(optimizer, app["ub"])
                 (status, solution_found_aux) = optimize!(optimizer)

@@ -1,14 +1,14 @@
 __precompile__(false)
 module GAPSolverDemo
-using ColunaVrpSolver, JuMP, ArgParse
+using VrpSolver, JuMP, ArgParse
 
 include("data.jl")
 include("model.jl")
 
-function parse_commandline(args_array::Array{String, 1}, appfolder::String)
+function parse_commandline(args_array::Array{String,1}, appfolder::String)
     s = ArgParseSettings(
-        usage = "##### VRPSolver #####\n\n" *
-                "  On interactive mode, call main([\"arg1\", ..., \"argn\"])", exit_after_help = false)
+        usage="##### VRPSolver #####\n\n" *
+              "  On interactive mode, call main([\"arg1\", ..., \"argn\"])", exit_after_help=false)
     @add_arg_table s begin
         "instance"
         help = "Instance file path"
@@ -25,7 +25,7 @@ function parse_commandline(args_array::Array{String, 1}, appfolder::String)
     return parse_args(args_array, s)
 end
 
-function run_gap(app::Dict{String, Any})
+function run_gap(app::Dict{String,Any})
     println("Application parameters:")
     for (arg, val) in app
         println("  $arg  =>  $(repr(val))")
