@@ -20,7 +20,7 @@ function build_model(data::DataGap)
         L, U = 0, 1
         G = VrpGraph(gap, V, v_source, v_sink, (L, U))
 
-        cap_res_id = add_resource!(G, main = true) # R = Rᴹ = {cap_res_id}
+        cap_res_id = add_resource!(G, main=true) # R = Rᴹ = {cap_res_id}
         arc_plus_ids = Vector{Int}[] # arc_plus_ids[t] is the id for the arc (t-1,t) with positive resource consumption
 
         # Build A
@@ -37,7 +37,7 @@ function build_model(data::DataGap)
         # Accumulated resource consumption interval [l_v, u_v] for each vertex v \in V
         for v in V
             l_v, u_v = 0.0, Float64(Q[k])
-            set_resource_bounds!(G, v, cap_res_id, l_v, u_v)
+            set_resource_bounds!(G, v, cap_res_id, l_v, (v == v_source) ? 0.0 : u_v)
         end
         return G, arc_plus_ids
     end
