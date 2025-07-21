@@ -12,6 +12,9 @@ function parse_commandline(args_array::Array{String,1}, appfolder::String)
     @add_arg_table s begin
         "instance"
         help = "Instance file path"
+        "--update"
+        help = "Update the VrpSolver package"
+        action = :store_true
         "--cfg", "-c"
         help = "Configuration file path"
         default = "$appfolder/../config/GAP_Classic.cfg"

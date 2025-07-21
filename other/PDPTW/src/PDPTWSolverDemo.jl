@@ -36,6 +36,9 @@ function parse_commandline(args_array::Array{String,1}, appfolder::String)
         "--round", "-r"
         help = "Round the distance matrix"
         action = :store_true
+        "--update"
+        help = "Update the VrpSolver package"
+        action = :store_true
         "--sol", "-s"
         help = "Solution file path (e.g., see sol/AA30.sol)"
         "--out", "-o"

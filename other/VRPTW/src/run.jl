@@ -12,9 +12,10 @@ end
 
 using Pkg
 Pkg.activate(joinpath(@__DIR__, ".."))
-Pkg.add(url="https://github.com/tbulhoes/VrpSolver.jl", rev="main")
-Pkg.instantiate()
-
+if !haskey(Pkg.project().dependencies, "VrpSolver") || !isnothing(findfirst(isequal("--update"), ARGS))
+    Pkg.add(url="https://github.com/tbulhoes/VrpSolver.jl", rev="main")
+    Pkg.instantiate()
+end
 
 using VRPTWSolverDemo
 

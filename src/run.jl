@@ -1,5 +1,6 @@
 if haskey(ENV, "JULIA_LOAD_PATH")
     println("Please unset the JULIA_LOAD_PATH environment variable.")
+    exit()
 end
 if !haskey(ENV, "BAPCOD_RCSP_LIB")
     println(
@@ -12,8 +13,10 @@ end
 
 using Pkg
 Pkg.activate(joinpath(@__DIR__, ".."))
-Pkg.add(url="https://github.com/tbulhoes/VrpSolver.jl", rev="main")
-Pkg.instantiate()
+if !haskey(Pkg.project().dependencies, "VrpSolver") || !isnothing(findfirst(isequal("--update"), ARGS))
+    Pkg.add(url="https://github.com/tbulhoes/VrpSolver.jl", rev="main")
+    Pkg.instantiate()
+end
 
 
 using CVRPSolverDemo

@@ -1,6 +1,6 @@
 __precompile__(false)
 module CVRPSolverDemo
-using VrpSolver, JuMP, ArgParse
+using VrpSolver, JuMP, ArgParse, HiGHS
 
 include("data.jl")
 include("model.jl")
@@ -30,6 +30,12 @@ function parse_commandline(args_array::Vector{String}, appfolder::String)
         default = 999
         "--noround", "-r"
         help = "Does not round the distance matrix"
+        action = :store_true
+        "--show_complete_form", "-f"
+        help = "Show the complete formulation including all feasible paths"
+        action = :store_true
+        "--update"
+        help = "Update the VrpSolver package"
         action = :store_true
         "--sol", "-s"
         help =
@@ -68,12 +74,13 @@ function run_cvrp(app::Dict{String,Any})
     if !app["nosolve"]
         (model, x) = build_model(data, app)
 
-        # enum_paths, complete_form = get_complete_formulation(model, app["cfg"])
-        # complete_form.solver = CplexSolver() # set MIP solver
-        # print_enum_paths(enum_paths)
-        # println(complete_form)
-        # solve(complete_form)
-        # println("Objective value: $(getobjectivevalue(complete_form))\n")
+        if app["show_complete_form"]
+            enum_paths, complete_form = get_complete_formulation(model, app["cfg"])
+            set_optimizer(complete_form, HiGHS.Optimizer) # set MIP solver
+            print_enum_paths(enum_paths)
+            println(complete_form)
+            optimize!(complete_form)
+        end
 
         optimizer = VrpOptimizer(model, app["cfg"], instance_name)
         set_cutoff!(optimizer, app["ub"])
