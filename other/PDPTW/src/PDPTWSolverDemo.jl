@@ -90,10 +90,11 @@ function run_pdptw(app::Dict{String,Any})
         end
     else # Ropke instances
         data = readRopkeData(app["instance"], app["round"])
+        maxr = min(app["maxr"], n(data))
 
         solution_found = false
         if !app["nosolve"]
-            for k in app["maxr"]:-1:app["minr"]
+            for k in maxr:-1:app["minr"]
                 (model, x) = build_model(data, app, k=k) # problem with fixed fleet with k vehicles
                 optimizer = VrpOptimizer(model, app["cfg"], instance_name)
                 set_cutoff!(optimizer, app["ub"])
