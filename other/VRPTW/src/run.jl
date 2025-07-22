@@ -1,5 +1,6 @@
 if haskey(ENV, "JULIA_LOAD_PATH")
     println("Please unset the JULIA_LOAD_PATH environment variable.")
+    exit()
 end
 if !haskey(ENV, "BAPCOD_RCSP_LIB")
     println(
