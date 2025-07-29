@@ -54,6 +54,8 @@ function build_model(data::DataCVRP, app::Dict{String,Any})
 
     add_capacity_cut_separator!(cvrp, [([(G, i)], d(data, i)) for i in V⁺], Q)
 
+    add_strongkpath_cut_separator!(cvrp, [([(G, i)], d(data, i)) for i in V⁺], Q)
+
     set_branching_priority!(cvrp, "x", 1)
 
     function edge_ub_callback()
