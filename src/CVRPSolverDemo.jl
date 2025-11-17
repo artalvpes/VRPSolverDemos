@@ -1,8 +1,9 @@
 __precompile__(false)
 module CVRPSolverDemo
-using VrpSolver, JuMP, ArgParse, HiGHS
+using VrpSolver, JuMP, ArgParse, HiGHS, DataStructures
 
 include("data.jl")
+include("branching.jl")
 include("model.jl")
 include("solution.jl")
 
@@ -50,6 +51,19 @@ function parse_commandline(args_array::Vector{String}, appfolder::String)
         action = :store_true
         "--batch", "-b"
         help = "batch file path"
+        "--edge_cuts", "-e"
+        help = "Use edge cuts via cut callback."
+        action = :store_true
+        "--strong_kpath_cuts", "-k"
+        help = "Use strong k-path cuts."
+        action = :store_true
+        "--cluster_branching", "-B"
+        help = "Cluster branching parameter value (0 = disabled)"
+        arg_type = Float64
+        default = 1.0
+        "--single_resource", "-R"
+        help = "Use a single resource (omit the capacity resource if distance constrained)"
+        action = :store_true
     end
     return parse_args(args_array, s)
 end

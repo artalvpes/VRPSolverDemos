@@ -10,13 +10,15 @@ end
 # Undirected graph
 mutable struct InputGraph
     V′::Vector{Vertex} # set of vertices (access with id_vertex + 1)
-    E::Vector{Tuple{Int64, Int64}} # set of edges
-    cost::Dict{Tuple{Int64, Int64}, Float64} # cost for each edge
+    E::Vector{Tuple{Int64,Int64}} # set of edges
+    cost::Dict{Tuple{Int64,Int64},Float64} # cost for each edge
 end
 
 mutable struct DataCVRP
     G′::InputGraph
     Q::Float64 # vehicle capacity
+    D::Float64 # maximum distance
+    S::Float64 # service time
     depot_id::Int
     coord::Bool # instance with NODE_COORD_SECTION
     round::Bool # Is the distance matrix rounded?
@@ -25,7 +27,7 @@ end
 customers(data::DataCVRP) = [i.id_vertex for i in data.G′.V′[2:end]] # return set of customers
 
 # Euclidian distance
-function distance(data::DataCVRP, arc::Tuple{Int64, Int64})
+function distance(data::DataCVRP, arc::Tuple{Int64,Int64})
     e = (arc[1] < arc[2]) ? arc : (arc[2], arc[1])
     if haskey(data.G′.cost, e) # use already calculated value
         return data.G′.cost[e]
@@ -46,20 +48,24 @@ end
 
 contains(p, s) = findnext(s, p, 1) !== nothing
 
-function readCVRPData(app::Dict{String, Any})
-    str = Unicode.normalize(read(app["instance"], String); stripcc = true)
+function readCVRPData(app::Dict{String,Any})
+    str = Unicode.normalize(read(app["instance"], String); stripcc=true)
     breaks_in = [' '; ':'; '\n']
-    aux = split(str, breaks_in; limit = 0, keepempty = false)
+    aux = split(str, breaks_in; limit=0, keepempty=false)
 
     G′ = InputGraph([], [], Dict())
-    data = DataCVRP(G′, 0, 0, false, !app["noround"])
+    data = DataCVRP(G′, 0, 0, 0, 0, false, !app["noround"])
 
     dim = 0
     for i in 1:length(aux)
         if contains(aux[i], "DIMENSION")
             dim = parse(Int, aux[i+1])
         elseif contains(aux[i], "CAPACITY")
-            data.Q = parse(Float64, aux[i+1])  # the method parse() convert the string to Int64
+            data.Q = parse(Float64, aux[i+1])  # the method parse() convert the string to Float64
+        elseif contains(aux[i], "DISTANCE")
+            data.D = parse(Float64, aux[i+1])  # the method parse() convert the string to Float64
+        elseif contains(aux[i], "SERVICE_TIME")
+            data.S = parse(Float64, aux[i+1])  # the method parse() convert the string to Float64
         elseif contains(aux[i], "NODE_COORD_SECTION")
             data.coord = true
             j = i + 1
@@ -105,9 +111,12 @@ end
 
 edges(data::DataCVRP) = data.G′.E # return set of edges
 c(data, e) = data.G′.cost[e] # cost of the edge e
+t(data, e) = data.G′.cost[e] + ((e[1] == 0) ? data.S / 2 : data.S) # time of the edge e
 dimension(data::DataCVRP) = length(data.G′.V′) # return number of vertices
 d(data::DataCVRP, i) = data.G′.V′[i+1].demand # return demand of i
 veh_capacity(data::DataCVRP) = data.Q
+service_time(data::DataCVRP) = data.S
+max_dist(data::DataCVRP) = data.D
 nb_customers(data::DataCVRP) = length(customers(data))
 
 function lowerBoundNbVehicles(data::DataCVRP)

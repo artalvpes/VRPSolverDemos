@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
 JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"

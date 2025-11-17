@@ -5,6 +5,7 @@ function build_model(data::DataCVRP, app::Dict{String,Any})
     V = [i for i in 0:n] # set of vertices of the graphs G′ and G
     V⁺ = [i for i in 1:n] # set of customers of the input graph G′
     Q = veh_capacity(data)
+    D = max_dist(data)
 
     # Formulation
     cvrp = VrpModel()
@@ -24,27 +25,58 @@ function build_model(data::DataCVRP, app::Dict{String,Any})
 
         # node ids of G from 0 to n
         G = VrpGraph(cvrp, V, v_source, v_sink, (L, U))
-        cap_res_id = add_resource!(G, main=true) # R = R_M = {cap_res_id}
+        if D == 0
+            cap_res_id = add_resource!(G, main=true) # R = R_M = {cap_res_id}
+            dist_res_id = -1
+        else
+            if !app["single_resource"]
+                cap_res_id = add_resource!(G, main=true) # R = R_M = {cap_res_id}
+            end
+            dist_res_id = add_resource!(G, main=true) # R = R_M = {cap_res_id}
+        end
 
         for i in V
-            l_i, u_i = 0.0, Float64(Q) # accumulated resource consumption interval [l_i, u_i] for the vertex i
-            set_resource_bounds!(G, i, cap_res_id, l_i, u_i)
+            if D == 0
+                l_i, u_i = 0.0, Q # accumulated resource consumption interval [l_i, u_i] for the vertex i
+                set_resource_bounds!(G, i, cap_res_id, l_i, u_i)
+            else
+                if !app["single_resource"]
+                    l_i, u_i = 0.0, Q
+                    set_resource_bounds!(G, i, cap_res_id, l_i, u_i)
+                end
+                l_i, u_i = 0.0, D
+                set_resource_bounds!(G, i, dist_res_id, l_i, u_i)
+            end
         end
 
         # Build set of arcs A from E (two arcs for each edge (i,j))
         for (i, j) in E
             arc_id = add_arc!(G, i, j)
             add_arc_var_mapping!(G, arc_id, x[(i, j)])
-            set_arc_consumption!(G, arc_id, cap_res_id, (d(data, i) + d(data, j)) / 2)
+            if D == 0
+                set_arc_consumption!(G, arc_id, cap_res_id, (d(data, i) + d(data, j)) / 2)
+            else
+                if !app["single_resource"]
+                    set_arc_consumption!(G, arc_id, cap_res_id, (d(data, i) + d(data, j)) / 2)
+                end
+                set_arc_consumption!(G, arc_id, dist_res_id, t(data, (i, j)))
+            end
             arc_id = add_arc!(G, j, i)
             add_arc_var_mapping!(G, arc_id, x[(i, j)])
-            set_arc_consumption!(G, arc_id, cap_res_id, (d(data, i) + d(data, j)) / 2)
+            if D == 0
+                set_arc_consumption!(G, arc_id, cap_res_id, (d(data, i) + d(data, j)) / 2)
+            else
+                if !app["single_resource"]
+                    set_arc_consumption!(G, arc_id, cap_res_id, (d(data, i) + d(data, j)) / 2)
+                end
+                set_arc_consumption!(G, arc_id, dist_res_id, t(data, (i, j)))
+            end
         end
 
-        return G
+        return G, dist_res_id
     end
 
-    G = build_graph()
+    G, dist_res_id = build_graph()
     add_graph!(cvrp, G)
     #println(G)
 
@@ -54,9 +86,18 @@ function build_model(data::DataCVRP, app::Dict{String,Any})
 
     add_capacity_cut_separator!(cvrp, [([(G, i)], d(data, i)) for i in V⁺], Q)
 
-    add_strongkpath_cut_separator!(cvrp, [([(G, i)], d(data, i)) for i in V⁺], Q)
+    if D > 0
+        add_capacity_cut_separator!(cvrp, [([(G, i)], service_time(data)) for i in V⁺], D, dist_res_id)
+    end
 
-    set_branching_priority!(cvrp, "x", 1)
+    if app["strong_kpath_cuts"]
+        add_strongkpath_cut_separator!(cvrp, [([(G, i)], d(data, i)) for i in V⁺], Q)
+    end
+
+    # Set the priority for branching on edges as 2, the same value as branching on the number of vehicles
+    set_branching_priority!(cvrp, "x", 2)
+
+    add_cluster_branching!(cvrp, data, app["cluster_branching"], x)
 
     function edge_ub_callback()
         for (i, j) in E
@@ -67,7 +108,9 @@ function build_model(data::DataCVRP, app::Dict{String,Any})
             end
         end
     end
-    add_cut_callback!(cvrp, edge_ub_callback, "edge_ub")
+    if app["edge_cuts"]
+        add_cut_callback!(cvrp, edge_ub_callback, "edge_ub")
+    end
 
     return (cvrp, x)
 end
