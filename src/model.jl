@@ -95,7 +95,7 @@ function build_model(data::DataCVRP, app::Dict{String,Any})
     end
 
     # Set the priority for branching on edges as 2, the same value as branching on the number of vehicles
-    set_branching_priority!(cvrp, "x", 2)
+    set_branching_priority!(cvrp, "x", app["low_edge_priority"] ? 1 : 2)
 
     add_cluster_branching!(cvrp, data, app["cluster_branching"], x)
 

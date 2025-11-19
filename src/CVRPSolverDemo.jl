@@ -64,6 +64,9 @@ function parse_commandline(args_array::Vector{String}, appfolder::String)
         "--single_resource", "-R"
         help = "Use a single resource (omit the capacity resource if distance constrained)"
         action = :store_true
+        "--low_edge_priority", "-l"
+        help = "Set a low priority to edge branching"
+        action = :store_true
     end
     return parse_args(args_array, s)
 end

@@ -58,7 +58,10 @@ function add_cluster_branching!(model::VrpModel, data::DataCVRP, param::Float64,
     end
 
     # add the branching expressions to the model
-    @expression(model.formulation, ω[k in 1:m], sum(x[e] for e in E if e[1] == 0 && cluster_id[e[2]] == k))
+    @expression(
+        model.formulation, ω[k in 1:m],
+        sum(x[e] for e in E if (e[1] != 0 && cluster_id[e[1]] == k) != (cluster_id[e[2]] == k))
+    )
     set_branching_priority!(model, ω, "omega", 2)
     @expression(
         model.formulation, Ψ[k in 1:m, l in k+1:m],
