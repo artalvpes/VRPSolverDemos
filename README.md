@@ -6,4 +6,4 @@
 
 **Acknowledgements:** These demos use the Julia interface [VrpSolver.jl](https://github.com/tbulhoes/VrpSolver.jl) developed jointly with Teobaldo Bulhões by his initiative.
 
-**Reporting issues:** This is an ongoing work. Even the original VRPSolver interface is not complete. I am waiting for nice examples from you to implement and test the features that are missing and fix bugs. So, when reporting bugs, please choose examples as small as possible, provide the necessary data to reproduce the issue, and describe the expected behavior (the optimal solution and its cost, for example).
+**Reporting issues:** When reporting bugs, please choose examples as small as possible, provide the necessary data to reproduce the issue, and describe the expected behavior (the optimal solution and its cost, for example).
