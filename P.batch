@@ -1,0 +1,25 @@
+# Tip: after a batch execution, call 'grep statistics: out/P.out -h | cut -c13-' to get the results as rows for a LaTeX table.
+# julia src/run -b P.batch &> out/P.out 
+data/P/P-n19-k2.vrp -m 2 -M 2 -u 213
+data/P/P-n20-k2.vrp -m 2 -M 2 -u 217
+data/P/P-n21-k2.vrp -m 2 -M 2 -u 212
+data/P/P-n22-k2.vrp -m 2 -M 2 -u 217
+data/P/P-n22-k8.vrp -m 8 -M 8 -u 604
+data/P/P-n23-k8.vrp -m 8 -M 8 -u 530
+data/P/P-n40-k5.vrp -m 5 -M 5 -u 459
+data/P/P-n45-k5.vrp -m 5 -M 5 -u 511
+data/P/P-n50-k10.vrp -m 10 -M 10 -u 697
+data/P/P-n50-k7.vrp -m 7 -M 7 -u 555
+data/P/P-n50-k8.vrp -m 8 -M 8 -u 632
+data/P/P-n51-k10.vrp -m 10 -M 10 -u 742
+data/P/P-n55-k10.vrp -m 10 -M 10 -u 700
+data/P/P-n55-k15.vrp -m 15 -M 15 -u 994
+data/P/P-n55-k7.vrp -m 7 -M 7 -u 569
+data/P/P-n55-k8.vrp -m 8 -M 8 -u 589
+data/P/P-n60-k10.vrp -m 10 -M 10 -u 757
+data/P/P-n60-k15.vrp -m 15 -M 15 -u 1034
+data/P/P-n65-k10.vrp -m 10 -M 10 -u 793
+data/P/P-n70-k10.vrp -m 10 -M 10 -u 835
+data/P/P-n76-k4.vrp -m 4 -M 4 -u 594
+data/P/P-n76-k5.vrp -m 5 -M 5 -u 628
+data/P/P-n101-k4.vrp -m 4 -M 4 -u 682

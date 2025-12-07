@@ -1,0 +1,5 @@
+# Tip: after a batch execution, call 'grep statistics: out/F.out -h | cut -c13-' to get the results as rows for a LaTeX table.
+# julia src/run -b F.batch &> out/F.out 
+data/F/F-n45-k4.vrp -m 4 -M 4 -u 725
+data/F/F-n72-k4.vrp -m 4 -M 4 -u 238
+data/F/F-n135-k7.vrp -m 7 -M 7 -u 1163

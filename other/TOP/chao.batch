@@ -1,4 +1,4 @@
-# Tip: after a batch execution, call 'grep statistics out/chao.out -h | cut -c13-' to get the results as rows for a LaTeX table.
+# Tip: after a batch execution, call 'grep statistics: out/chao.out -h | cut -c13-' to get the results as rows for a LaTeX table.
 # julia src/run.jl -b chao.batch &> out/chao.out
 data/p4.2.a.txt --cfg config/TOP.cfg
 data/p4.2.b.txt --cfg config/TOP.cfg

@@ -1,0 +1,32 @@
+# Tip: after a batch execution, call 'grep statistics: out/lilim.out -h | cut -c13-' to get the results as rows for a LaTeX table.
+# julia src/run.jl -b lilim.batch &> out/lilim.out
+data/LiLim/LC1_2_1.txt --lilim -u 2704.7 -o sol/LC1_2_1.sol -t tex/LC1_2_1.tex
+#data/LiLim/LC1_2_2.txt --lilim -u 2764.7 -o sol/LC1_2_2.sol -t tex/LC1_2_2.tex
+#data/LiLim/LC1_2_3.txt --lilim -u 2772.3 -o sol/LC1_2_3.sol -t tex/LC1_2_3.tex
+#data/LiLim/LC1_2_4.txt --lilim -u 2661.5 -o sol/LC1_2_4.sol -t tex/LC1_2_4.tex
+data/LiLim/LC1_2_5.txt --lilim -u 2702.1 -o sol/LC1_2_5.sol -t tex/LC1_2_5.tex
+#data/LiLim/LC1_2_6.txt --lilim -u 2701.1 -o sol/LC1_2_6.sol -t tex/LC1_2_6.tex
+#data/LiLim/LC1_2_7.txt --lilim -u 2701.1 -o sol/LC1_2_7.sol -t tex/LC1_2_7.tex
+#data/LiLim/LC1_2_8.txt --lilim -u 2689.9 -o sol/LC1_2_8.sol -t tex/LC1_2_8.tex
+#data/LiLim/LC1_2_9.txt --lilim -u 2724.3 -o sol/LC1_2_9.sol -t tex/LC1_2_9.tex
+#data/LiLim/LC1_2_10.txt --lilim -u 2741.7 -o sol/LC1_2_10.sol -t tex/LC1_2_10.tex
+data/LiLim/LR1_2_1.txt --lilim -u 4819.2 -o sol/LR1_2_1.sol -t tex/LR1_2_1.tex
+#data/LiLim/LR1_2_2.txt --lilim -u 4093.2 -o sol/LR1_2_2.sol -t tex/LR1_2_2.tex
+#data/LiLim/LR1_2_3.txt --lilim -u 3487 -o sol/LR1_2_3.sol -t tex/LR1_2_3.tex
+#data/LiLim/LR1_2_4.txt --lilim -u 2830.8 -o sol/LR1_2_4.sol -t tex/LR1_2_4.tex
+#data/LiLim/LR1_2_5.txt --lilim -u 4221.7 -o sol/LR1_2_5.sol -t tex/LR1_2_5.tex
+#data/LiLim/LR1_2_6.txt --lilim -u 3763.1 -o sol/LR1_2_6.sol -t tex/LR1_2_6.tex
+#data/LiLim/LR1_2_7.txt --lilim -u 3113 -o sol/LR1_2_7.sol -t tex/LR1_2_7.tex
+#data/LiLim/LR1_2_8.txt --lilim -u 2645.6 -o sol/LR1_2_8.sol -t tex/LR1_2_8.tex
+#data/LiLim/LR1_2_9.txt --lilim -u 3953.6 -o sol/LR1_2_9.sol -t tex/LR1_2_9.tex
+#data/LiLim/LR1_2_10.txt --lilim -u 3389.3 -o sol/LR1_2_10.sol -t tex/LR1_2_10.tex
+#data/LiLim/LRC1_2_1.txt --lilim -u 3606.2 -o sol/LRC1_2_1.sol -t tex/LRC1_2_1.tex
+#data/LiLim/LRC1_2_2.txt --lilim -u 3292.5 -o sol/LRC1_2_2.sol -t tex/LRC1_2_2.tex
+#data/LiLim/LRC1_2_3.txt --lilim -u 3079.6 -o sol/LRC1_2_3.sol -t tex/LRC1_2_3.tex
+#data/LiLim/LRC1_2_4.txt --lilim -u 2525.9 -o sol/LRC1_2_4.sol -t tex/LRC1_2_4.tex
+#data/LiLim/LRC1_2_5.txt --lilim -u 3715.9 -o sol/LRC1_2_5.sol -t tex/LRC1_2_5.tex
+#data/LiLim/LRC1_2_6.txt --lilim -u 3361 -o sol/LRC1_2_6.sol -t tex/LRC1_2_6.tex
+#data/LiLim/LRC1_2_7.txt --lilim -u 3317.8 -o sol/LRC1_2_7.sol -t tex/LRC1_2_7.tex
+#data/LiLim/LRC1_2_8.txt --lilim -u 3086.8 -o sol/LRC1_2_8.sol -t tex/LRC1_2_8.tex
+#data/LiLim/LRC1_2_9.txt --lilim -u 3058.7 -o sol/LRC1_2_9.sol -t tex/LRC1_2_9.tex
+#data/LiLim/LRC1_2_10.txt --lilim -u 2837.6 -o sol/LRC1_2_10.sol -t tex/LRC1_2_10.tex
