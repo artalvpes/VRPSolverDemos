@@ -60,7 +60,7 @@ end
 function run_pdptw(app::Dict{String,Any})
     println("Application parameters:")
     for (arg, val) in app
-        if val == nothing
+        if isnothing(val)
             println("  $arg  =>  nothing")
         else
             println("  $arg  =>  $val")
@@ -70,7 +70,7 @@ function run_pdptw(app::Dict{String,Any})
 
     instance_name = String(split(basename(app["instance"]), ".")[1])
 
-    if app["sol"] != nothing
+    if !isnothing(app["sol"])
         sol = readsolution(app["sol"])
         app["ub"] = (sol.cost < app["ub"]) ? sol.cost : app["ub"] # update the upper bound if necessary
     end
@@ -110,13 +110,13 @@ function run_pdptw(app::Dict{String,Any})
     end
 
     println("########################################################")
-    if solution_found || app["sol"] != nothing # Is there a solution?
+    if solution_found || !isnothing(app["sol"]) # Is there a solution?
         print_routes(sol)
         println("Cost $(sol.cost)")
-        if app["out"] != nothing
+        if !isnothing(app["out"])
             writesolution(app["out"], sol)
         end
-        if app["tikz"] != nothing
+        if !isnothing(app["tikz"])
             drawsolution(app["tikz"], data, sol) # write tikz figure
         end
     elseif !app["nosolve"]

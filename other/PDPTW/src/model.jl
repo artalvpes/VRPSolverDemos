@@ -25,7 +25,7 @@ function build_model(data::DataPDPTW, app; k=-1)
         V1 = [i for i in 0:2*n]
 
         # multiplicity
-        if app["lilim"]
+        if k == -1
             L = lowerBoundNbVehicles(data)
             U = upperBoundNbVehicles(data)
         else
@@ -85,7 +85,7 @@ function build_model(data::DataPDPTW, app; k=-1)
         define_initial_neighborhood(data, P[es_id], es_id, min(n, 8))
     end
 
-    set_branching_priority!(pdptw, "x", 1)
-    # set_branching_priority!(pdptw, num_veh, "num_veh", 2) # branching in expressions is still not supported
+    set_branching_priority!(pdptw, "x", 2)
+    set_branching_priority!(pdptw, num_veh, "num_veh", 3)
     return (pdptw, x)
 end
