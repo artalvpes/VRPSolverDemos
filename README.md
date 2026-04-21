@@ -2,7 +2,7 @@
 
 **Requirements:** Linux or MacOS (use [Docker](https://www.docker.com) or [WSL](https://learn.microsoft.com/en-gb/windows/wsl/) to run in Windows), [Julia](https://julialang.org) version 1.6 or greater, and a [VRPSolver](https://vrpsolver.math.u-bordeaux.fr)-library binary file that shall be generated locally following the instructions from the web site.
 
-**Running the demo:** The environment variable `BAPCOD_RCSP_LIB` should be set with the path to the VRPSolver-library binary file (including its name) whenever you run this demo. Then, inside the directory where you cloned this repository, just type `julia src/run.jl data/A/A-n37-k6.vrp -m 6 -M 6 -u 950` to solve a small classical CVRP instance providing an initial upper bound.
+**Running the CVRP demo:** The environment variable `BAPCOD_RCSP_LIB` should be set with the path to the VRPSolver-library binary file (including its name) whenever you run this demo. Then, inside the subdirectory CVRP of the directory where you cloned this repository, just type `julia src/run.jl data/A/A-n37-k6.vrp -m 6 -M 6 -u 950` to solve a small classical CVRP instance providing an initial upper bound.
 
 **Acknowledgements:** These demos use the Julia interface [VrpSolver.jl](https://github.com/tbulhoes/VrpSolver.jl) developed jointly with Teobaldo Bulhões by his initiative.
 
