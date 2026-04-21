@@ -1,5 +1,6 @@
 /**
- * Customized Resource for BaPCod/RCSP implementing the Cumulative Cost Resource
+ * Resource Constrained Shortest Path Solver
+ * Designed to be used by Branch-Cut-and-Price algorithms
  *
  * @author Artur Pessoa <arturpessoa@id.uff.br>,
  * @author Teobaldo Bulhoes <tbulhoes@ci.ufpb.br>,

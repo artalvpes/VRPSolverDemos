@@ -25,7 +25,7 @@ cd(base_dir)
 using Pkg
 Pkg.activate(joinpath(@__DIR__, ".."))
 if !haskey(Pkg.project().dependencies, "VrpSolver") || !isnothing(findfirst(isequal("--update"), ARGS))
-    Pkg.add(url="https://github.com/tbulhoes/VrpSolver.jl", rev="main")
+    Pkg.add(url="https://github.com/tbulhoes/VrpSolver.jl", rev="update_rcsp_interface")
     Pkg.instantiate()
 end
 
