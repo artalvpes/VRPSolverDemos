@@ -77,7 +77,7 @@ function run_cvrp(app::Dict{String,Any})
         if app["show_complete_form"]
             enum_paths, complete_form = get_complete_formulation(model, app["cfg"])
             set_optimizer(complete_form, HiGHS.Optimizer) # set MIP solver
-            print_enum_paths(enum_paths)
+            print_enum_paths(model, enum_paths)
             println(complete_form)
             optimize!(complete_form)
         end
