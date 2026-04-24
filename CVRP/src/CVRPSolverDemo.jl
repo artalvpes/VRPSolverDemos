@@ -75,7 +75,7 @@ function run_cvrp(app::Dict{String,Any})
     end
     flush(stdout)
 
-    instance_name = split(basename(app["instance"]), ".")[1]
+    instance_name = string(split(basename(app["instance"]), ".")[1])
 
     data = readCVRPData(app)
     if app["sol"] !== nothing
