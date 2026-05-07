@@ -3,7 +3,6 @@ name = "CVRP-A-n37-k6"
 demo = "CVRP"
 cmd = ["src/run.jl", "data/A/A-n37-k6.vrp", "-m", "6", "-M", "6", "-u", "950"]
 optimum = 949
-optimal = 1
 tol = 1e-6
 
 [[case]]
@@ -11,7 +10,6 @@ name = "CCVRP-A-n37-k5"
 demo = "CCVRP"
 cmd = ["src/run.jl", "data/A/A-n37-k5.vrp", "-m", "5", "-M", "5", "-u", "20006"]
 optimum = 20005
-optimal = 1
 tol = 1e-6
 
 [[case]]
@@ -19,7 +17,6 @@ name = "GAP-gapD-5-100"
 demo = "GAP"
 cmd = ["src/run.jl", "data/Classic/gapD-5-100.txt", "-u", "6354", "--cfg", "config/GAP_Classic.cfg"]
 optimum = 6353
-optimal = 1
 tol = 1e-6
 
 [[case]]
@@ -27,7 +24,6 @@ name = "VRPTW-C203"
 demo = "VRPTW"
 cmd = ["src/run.jl", "data/100/C203.txt", "-u", "588.8", "--cfg", "config/VRPTW_set_2.cfg"]
 optimum = 588.7
-optimal = 1
 tol = 1e-6
 
 [[case]]
@@ -35,7 +31,6 @@ name = "PDPTW-AA30"
 demo = "PDPTW"
 cmd = ["src/run.jl", "data/Ropke/AA30.txt", "-m", "1", "-M", "3", "-u", "31119.2", "--fixed", "10000"]
 optimum = 31119.11
-optimal = 1
 tol = 1e-6
 
 [[case]]
@@ -43,5 +38,4 @@ name = "TOP-p4.2.a"
 demo = "TOP"
 cmd = ["src/run.jl", "data/p4.2.a.txt", "--cfg", "config/TOP.cfg"]
 optimum = -206.0 
-optimal = 1
 tol = 1e-6

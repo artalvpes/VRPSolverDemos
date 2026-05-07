@@ -25,12 +25,10 @@ struct TestResult
     name::String
     demo::String
     ok::Bool
-    optimal::Union{Int, Nothing}
-    expected_optimal::Union{Int, Nothing}
-    value::Union{Float64, Nothing}
-    optimum::Union{Float64, Nothing}
-    tol::Union{Float64, Nothing}
-    error_message::Union{String, Nothing}
+    value::Union{Float64,Nothing}
+    optimum::Union{Float64,Nothing}
+    tol::Union{Float64,Nothing}
+    error_message::Union{String,Nothing}
 end
 
 function print_help()
@@ -81,7 +79,6 @@ Adding a case:
     demo = "CVRP"
     cmd = ["src/run.jl", "data/A/A-n37-k6.vrp", "-m", "6", "-M", "6", "-u", "950"]
     optimum = 949
-    optimal = 1
     tol = 1e-6
 
 Fields:
@@ -97,9 +94,6 @@ Fields:
 
   optimum
       Expected objective value.
-
-  optimal
-      Expected value of the Optimal flag. Optional; defaults to 1.
 
   tol
       Absolute tolerance. Optional; defaults to 1e-6.
@@ -141,14 +135,14 @@ function parse_args()
             if i == length(ARGS)
                 error("Missing value after --source. Use --source dev or --source <branch-name>.")
             end
-            source = ARGS[i + 1]
+            source = ARGS[i+1]
             i += 2
 
         elseif arg == "--demo"
             if i == length(ARGS)
                 error("Missing value after --demo. Example: --demo CVRP.")
             end
-            demo_filter = ARGS[i + 1]
+            demo_filter = ARGS[i+1]
             i += 2
 
         else
@@ -344,7 +338,7 @@ function extract_statistics(output::String)
         error("Could not find any statistics line with Optimal == 1 and numeric bcRecBestInc.")
     end
 
-    return 1, best_value
+    return best_value
 end
 
 function run_demo_command(command::Cmd, workdir::String)
@@ -379,7 +373,6 @@ function print_test_result(result::TestResult)
         println(
             "$(GREEN)PASS$(RESET): $(result.name) | " *
             "demo = $(result.demo) | " *
-            "optimal = $(result.optimal) | " *
             "value = $(result.value) | " *
             "optimum = $(result.optimum) | " *
             "tol = $(result.tol)"
@@ -389,8 +382,6 @@ function print_test_result(result::TestResult)
             println(
                 "$(RED)FAIL$(RESET): $(result.name) | " *
                 "demo = $(result.demo) | " *
-                "optimal = $(result.optimal) | " *
-                "expected_optimal = $(result.expected_optimal) | " *
                 "value = $(result.value) | " *
                 "optimum = $(result.optimum) | " *
                 "tol = $(result.tol)"
@@ -415,58 +406,64 @@ function run_case(case, source::String)
         error("Demo directory not found: $demo_dir")
     end
 
-    tmp_demo_dir = prepare_temp_env(demo_dir, source)
+    tmp_demo_dir = nothing
 
-    cmd_parts = String.(case["cmd"])
+    try
+        tmp_demo_dir = prepare_temp_env(demo_dir, source)
 
-    if isempty(cmd_parts)
-        error("Empty cmd field for case: $name")
+        cmd_parts = String.(case["cmd"])
+
+        if isempty(cmd_parts)
+            error("Empty cmd field for case: $name")
+        end
+
+        ensure_no_forbidden_args(name, cmd_parts)
+
+        script_relpath = cmd_parts[1]
+        script_args = cmd_parts[2:end]
+
+        script = joinpath(tmp_demo_dir, script_relpath)
+
+        if !isfile(script)
+            error("Script not found: $script")
+        end
+
+        command = `$(Base.julia_cmd()) --startup-file=no --project=$tmp_demo_dir $script $(script_args)`
+
+        println("Running case: $name")
+        println("Demo: $demo")
+        println("Temporary demo directory: $tmp_demo_dir")
+        println("Command: $command")
+        println()
+
+        output = run_demo_command(command, tmp_demo_dir)
+
+        value = extract_statistics(output)
+
+        optimum = Float64(case["optimum"])
+        tol = Float64(get(case, "tol", 1e-6))
+
+        ok = (abs(value - optimum) <= tol + 1e-9)
+
+        result = TestResult(
+            name,
+            demo,
+            ok,
+            value,
+            optimum,
+            tol,
+            nothing,
+        )
+
+        print_test_result(result)
+
+        return result
+
+    finally
+        if tmp_demo_dir !== nothing
+            rm(dirname(tmp_demo_dir); recursive=true, force=true)
+        end
     end
-
-    ensure_no_forbidden_args(name, cmd_parts)
-
-    script_relpath = cmd_parts[1]
-    script_args = cmd_parts[2:end]
-
-    script = joinpath(tmp_demo_dir, script_relpath)
-
-    if !isfile(script)
-        error("Script not found: $script")
-    end
-
-    command = `$(Base.julia_cmd()) --startup-file=no --project=$tmp_demo_dir $script $(script_args)`
-
-    println("Running case: $name")
-    println("Demo: $demo")
-    println("Temporary demo directory: $tmp_demo_dir")
-    println("Command: $command")
-    println()
-
-    output = run_demo_command(command, tmp_demo_dir)
-
-    optimal, value = extract_statistics(output)
-
-    expected_optimal = Int(get(case, "optimal", 1))
-    optimum = Float64(case["optimum"])
-    tol = Float64(get(case, "tol", 1e-6))
-
-    ok = (optimal == expected_optimal) && (abs(value - optimum) <= tol + 1e-9)
-
-    result = TestResult(
-        name,
-        demo,
-        ok,
-        optimal,
-        expected_optimal,
-        value,
-        optimum,
-        tol,
-        nothing,
-    )
-
-    print_test_result(result)
-
-    return result
 end
 
 function load_cases(demo_filter)
@@ -524,8 +521,6 @@ function main()
                 case_name,
                 demo_name,
                 false,
-                nothing,
-                nothing,
                 nothing,
                 nothing,
                 nothing,
