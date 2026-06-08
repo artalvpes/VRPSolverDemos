@@ -6,9 +6,8 @@ end
 
 # Recover schedules from the x variable values.
 # Follows arcs with value > 0.5 from source (node 0) along each machine path.
-function getsolution(data::DataPwjTj, x, A, objval, optimizer)
+function getsolution(_::DataPwjTj, x, A, node_ids, objval, optimizer)
     src_snk = 0
-    node_ids = data.node_ids
 
     # Build adjacency list from arcs with positive value
     adj = Dict{Int,Vector{Int}}()

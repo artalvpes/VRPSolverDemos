@@ -47,13 +47,13 @@ function run_pwjtj(app::Dict{String,Any})
 
     solution_found = false
     if !app["nosolve"]
-        (model, x, A) = build_model(data, app)
+        (model, x, A, node_ids) = build_model(data, app)
         optimizer = VrpOptimizer(model, app["cfg"], instance_name)
         set_cutoff!(optimizer, app["ub"])
 
         (status, solution_found) = optimize!(optimizer)
         if solution_found
-            sol = getsolution(data, x, A, get_objective_value(optimizer), optimizer)
+            sol = getsolution(data, x, A, node_ids, get_objective_value(optimizer), optimizer)
         end
     end
 
