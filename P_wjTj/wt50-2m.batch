@@ -1,0 +1,28 @@
+# Tip: after a batch execution, call 'grep statistics: out/wt50-2m.out -h | cut -c13-' to get results.
+# julia src/run.jl -b wt50-2m.batch &> out/wt50-2m.out
+# Upper bounds are best known solution costs + 1 (from Pessoa et al. 2010, Table 3).
+instances/WT50-2m/wt50-2m-1.txt   -u 1269
+instances/WT50-2m/wt50-2m-6.txt   -u 14273
+instances/WT50-2m/wt50-2m-11.txt  -u 23029
+instances/WT50-2m/wt50-2m-16.txt  -u 46073
+instances/WT50-2m/wt50-2m-21.txt  -u 111070
+instances/WT50-2m/wt50-2m-26.txt  -u 27
+instances/WT50-2m/wt50-2m-31.txt  -u 5379
+instances/WT50-2m/wt50-2m-36.txt  -u 18957
+instances/WT50-2m/wt50-2m-41.txt  -u 38059
+instances/WT50-2m/wt50-2m-46.txt  -u 82106
+instances/WT50-2m/wt50-2m-51.txt  -u 1
+instances/WT50-2m/wt50-2m-56.txt  -u 762
+instances/WT50-2m/wt50-2m-61.txt  -u 13683
+instances/WT50-2m/wt50-2m-66.txt  -u 40908
+instances/WT50-2m/wt50-2m-71.txt  -u 78533
+instances/WT50-2m/wt50-2m-76.txt  -u 1
+instances/WT50-2m/wt50-2m-81.txt  -u 543
+instances/WT50-2m/wt50-2m-86.txt  -u 12558
+instances/WT50-2m/wt50-2m-91.txt  -u 47350
+instances/WT50-2m/wt50-2m-96.txt  -u 92823
+instances/WT50-2m/wt50-2m-101.txt -u 1
+instances/WT50-2m/wt50-2m-106.txt -u 1
+instances/WT50-2m/wt50-2m-111.txt -u 15565
+instances/WT50-2m/wt50-2m-116.txt -u 19610
+instances/WT50-2m/wt50-2m-121.txt -u 41697

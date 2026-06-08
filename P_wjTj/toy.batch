@@ -1,0 +1,12 @@
+# Tip: after a batch execution, call 'grep statistics: out/toy.out -h | cut -c13-' to get results.
+# julia src/run.jl -b toy.batch &> out/toy.out
+instances/toy/wt10-2m-1.txt
+instances/toy/wt10-2m-2.txt
+instances/toy/wt10-2m-3.txt
+instances/toy/wt10-2m-4.txt
+instances/toy/wt10-2m-5.txt
+instances/toy/wt10-2m-6.txt
+instances/toy/wt10-2m-7.txt
+instances/toy/wt10-2m-8.txt
+instances/toy/wt10-2m-9.txt
+instances/toy/wt10-2m-10.txt
