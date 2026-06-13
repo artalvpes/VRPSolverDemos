@@ -3,6 +3,7 @@ module PwjTjSolverDemo
 using VrpSolver, JuMP, ArgParse
 
 include("data.jl")
+include("cuts.jl")
 include("model.jl")
 include("solution.jl")
 

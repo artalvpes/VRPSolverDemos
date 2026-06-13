@@ -1,4 +1,4 @@
-function build_model(data::DataPwjTj, ::Dict{String,Any})
+function build_model(data::DataPwjTj, app::Dict{String,Any})
     n, m, T = data.n, data.m, data.T
     jobs = data.jobs
 
@@ -52,8 +52,10 @@ function build_model(data::DataPwjTj, ::Dict{String,Any})
             # Proposition 2: remove arc if swapping i and j gives a no-worse schedule
             delta = job_cost(data, i, t) + job_cost(data, j, t_j) -
                     job_cost(data, j, t_j - p_i) - job_cost(data, i, t_j)
-            i < j && delta >= 0 && continue
-            i > j && delta > 0 && continue
+            jobs[i].p < jobs[j].p && delta > 0 && continue
+            jobs[i].p > jobs[j].p && delta >= 0 && continue
+            i < j && jobs[i].p == jobs[j].p && delta > 0 && continue
+            i > j && jobs[i].p == jobs[j].p && delta >= 0 && continue
             nid_j = get(node_ids, (j, t_j), 0)
             if nid_j == 0
                 nid_j = register_node!(j, t_j)
@@ -78,6 +80,8 @@ function build_model(data::DataPwjTj, ::Dict{String,Any})
     for ((j, t), nid) in node_ids
         node_cost[nid+1] = Float64(job_cost(data, j, t))
     end
+
+    println("The model uses a graph with $(length(A)) arcs!")
 
     # Build VrpSolver formulation
     model = VrpModel()
@@ -133,6 +137,8 @@ function build_model(data::DataPwjTj, ::Dict{String,Any})
 
     set_branching_priority!(model, y, "y", 2)
     set_branching_priority!(model, x, "x", 1)
+
+    add_ecc_cuts!(model, data, x, A, node_ids, app["ub"])
 
     return (model, x, A, node_ids)
 end
