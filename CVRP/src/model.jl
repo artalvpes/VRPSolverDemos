@@ -90,10 +90,6 @@ function build_model(data::DataCVRP, app::Dict{String,Any})
         add_capacity_cut_separator!(cvrp, [([(G, i)], service_time(data)) for i in V⁺], D, dist_res_id)
     end
 
-    if app["strong_kpath_cuts"]
-        add_strongkpath_cut_separator!(cvrp, [([(G, i)], d(data, i)) for i in V⁺], Q)
-    end
-
     # Set the priority for branching on edges as 2, the same value as branching on the number of vehicles
     set_branching_priority!(cvrp, "x", app["low_edge_priority"] ? 1 : 2)
 

@@ -4,6 +4,8 @@
 
 **Running the CVRP demo:** The environment variable `BAPCOD_RCSP_LIB` should be set with the path to the VRPSolver-library binary file (including its name) whenever you run this demo. Then, inside the subdirectory CVRP of the directory where you cloned this repository, just type `julia src/run.jl data/A/A-n37-k6.vrp -m 6 -M 6 -u 950` to solve a small classical CVRP instance providing an initial upper bound.
 
+**Regression tests:** A small regression test suite is available under `tests/`. It runs selected instances from the demos and checks the reported optimality flag and objective value against reference values listed in `tests/cases.toml`. To test the local development version of `VrpSolver.jl`, run `julia tests/regression.jl --source dev` from the repository root. To test a specific GitHub branch of `VrpSolver.jl`, run `julia tests/regression.jl --source <branch-name>`. A single demo can be tested with `--demo`, e.g., `julia tests/regression.jl --source dev --demo CVRP`. Use `julia tests/regression.jl --help` for details on adding new cases.
+
 **Acknowledgements:** These demos use the Julia interface [VrpSolver.jl](https://github.com/tbulhoes/VrpSolver.jl) developed jointly with Teobaldo Bulhões by his initiative.
 
 **Reporting issues:** When reporting bugs, please choose examples as small as possible, provide the necessary data to reproduce the issue, and describe the expected behavior (the optimal solution and its cost, for example).

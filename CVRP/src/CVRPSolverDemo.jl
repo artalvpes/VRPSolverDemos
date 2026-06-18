@@ -54,9 +54,6 @@ function parse_commandline(args_array::Vector{String}, appfolder::String)
         "--edge_cuts", "-e"
         help = "Use edge cuts via cut callback."
         action = :store_true
-        "--strong_kpath_cuts", "-k"
-        help = "Use strong k-path cuts."
-        action = :store_true
         "--cluster_branching", "-B"
         help = "Cluster branching parameter value (0 = disabled)"
         arg_type = Float64
@@ -78,7 +75,7 @@ function run_cvrp(app::Dict{String,Any})
     end
     flush(stdout)
 
-    instance_name = split(basename(app["instance"]), ".")[1]
+    instance_name = string(split(basename(app["instance"]), ".")[1])
 
     data = readCVRPData(app)
     if app["sol"] !== nothing
