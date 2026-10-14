@@ -8,50 +8,41 @@ mutable struct Solution
     ringstars::Vector{RingStar}
 end
 
-# recover the ring from the edges used by a path, walking from the root
-function recover_ring(ring_edges::Vector{Tuple{Int,Int}})
-    adj = Dict{Int,Vector{Int}}()
-    for (i, j) in ring_edges
-        push!(get!(adj, i, Int[]), j)
-        push!(get!(adj, j, Int[]), i)
-    end
-    ring, curr, closed = Int[], 0, false
-    for _ in 1:length(ring_edges)
-        isempty(get(adj, curr, Int[])) && error("Problem trying to recover a ring from the x values.")
-        next = pop!(adj[curr])
-        deleteat!(adj[next], findfirst(==(curr), adj[next]))
-        if next == 0
-            closed = true
-            break
-        end
-        push!(ring, next)
-        curr = next
-    end
-    (!closed || length(ring) + 1 != length(ring_edges)) && error(
-        "Problem trying to recover a ring from the x values. The edges do not form a single cycle through the root.",
-    )
-    return ring
-end
-
-# build Solution from the values of x and z in each path (ring-star) of the solution
+# build Solution from the aggregated values of x and z. They must be used instead of the paths, because an
+# integer solution of the VRPSolver is integer in the original variables, not necessarily in the path
+# variables λ (e.g. the non-elementary path 0-11-17-11-0 and the path 0-17-0, both with λ = 0.5, give the
+# integer ring 0-11-17-0). Since every point has degree at most 2, x decomposes uniquely into rings.
 function getsolution(data::DataCRSP, optimizer::VrpOptimizer, x, z, objval, app::Dict{String,Any})
+    adj = Dict(i => Int[] for i in 0:(dimension(data)-1))
+    for (i, j) in edges(data)
+        for _ in 1:round(Int, get_value(optimizer, x[(i, j)]))
+            push!(adj[i], j)
+            push!(adj[j], i)
+        end
+    end
+    star_of = Dict{Int,Vector{Int}}() # star_of[i] = terminals connected to the ring point i
+    for (i, j) in z.axes[1]
+        get_value(optimizer, z[(i, j)]) > 0.5 && push!(get!(star_of, i, Int[]), j)
+    end
     ringstars = RingStar[]
-    for p in 1:get_number_of_positive_paths(optimizer)
-        ring_edges = Tuple{Int,Int}[]
-        for e in edges(data)
-            for _ in 1:round(Int, get_value(optimizer, x[e], p))
-                push!(ring_edges, e)
-            end
+    while !isempty(adj[0])
+        ring, v = Int[], pop!(adj[0])
+        deleteat!(adj[v], findfirst(==(0), adj[v]))
+        while v != 0
+            push!(ring, v)
+            length(adj[v]) != 1 && error(
+                "Problem trying to recover the rings from the x values. Point $v has $(length(adj[v]) + 1) incident edges.",
+            )
+            next = pop!(adj[v])
+            deleteat!(adj[next], findfirst(==(v), adj[next]))
+            v = next
         end
-        stars = Dict{Int,Vector{Int}}()
-        for i in points(data), j in star_set(data, i)
-            if get_value(optimizer, z[(i, j)], p) > 0.5
-                push!(get!(stars, i, Int[]), j)
-            end
-        end
-        for _ in 1:round(Int, get_value(optimizer, p)) # path multiplicity
-            push!(ringstars, RingStar(recover_ring(ring_edges), stars))
-        end
+        push!(ringstars, RingStar(ring, Dict(i => star_of[i] for i in ring if haskey(star_of, i))))
+    end
+    any(!isempty, values(adj)) && error("Problem trying to recover the rings from the x values. There are subtours.")
+    on_ring = Set(i for rs in ringstars for i in rs.ring)
+    for i in keys(star_of)
+        (i in on_ring) || error("Star center $i is not on any ring")
     end
     if !app["noround"]
         objval = trunc(Int, round(objval))

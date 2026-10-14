@@ -1,5 +1,6 @@
 # Model (6.37) of Section 6.4.9 of "Optimizing with Column Generation" (Uchoa, Pessoa, Moreno),
-# without the rounded capacity cuts (6.37c).
+# with the strengthened rounded capacity cuts over the w variables (see rcc_separation.jl), and with
+# the additional master constraints x(δ(s)) <= 2 forbidding more than one visit to each Steiner point s.
 #
 # Pricing graph G′ = (V′, A): the root 0 is both source and sink, and each point i ∈ S ∪ T is split
 # into an entry node v_in(i) = i and an exit node v_out(i) = n + i.
@@ -22,12 +23,16 @@ function build_model(data::DataCRSP, app::Dict{String,Any})
     crsp = VrpModel()
     @variable(crsp.formulation, x[e in E], Int)
     @variable(crsp.formulation, z[(i, j) in Z], Int)
+    # one variable per star arc (only used by the strengthened capacity cuts, which are dynamic)
+    @variable(crsp.formulation, w[k in w_keys(stars)])
     @objective(crsp.formulation, Min,
         sum(c(data, e) * x[e] for e in E) + sum(b(data, i, j) * z[(i, j)] for (i, j) in Z))
     # (6.37b) every terminal is either on a ring or connected through a star to a single ring point
     centers = Dict(j => [i for (i, j′) in Z if j′ == j] for j in T) # {i : j ∈ T(i)}
     @constraint(crsp.formulation, deg[j in T],
         sum(x[e] for e in δ(data, j)) + 2 * sum(z[(i, j)] for i in centers[j]) == 2.0)
+    # every Steiner point is visited at most once (a single ring, and only once in it)
+    @constraint(crsp.formulation, steiner_deg[s in S], sum(x[e] for e in δ(data, s)) <= 2.0)
 
     #println(crsp.formulation)
 
@@ -52,8 +57,8 @@ function build_model(data::DataCRSP, app::Dict{String,Any})
         end
 
         # A1: star arcs, consuming d(i,B)
-        for i in P, B in stars[i]
-            arc_id = add_arc!(G, v_in(data, i), v_out(data, i), [z[(i, j)] for j in B])
+        for i in P, (s, B) in enumerate(stars[i])
+            arc_id = add_arc!(G, v_in(data, i), v_out(data, i), vcat([z[(i, j)] for j in B], [w[(i, s)]]))
             set_arc_consumption!(G, arc_id, cap_res_id, d(data, i, B))
             (i in T) ? push!(ps_arcs[i], arc_id) : push!(es_arcs[i], arc_id)
             for j in B
@@ -85,18 +90,32 @@ function build_model(data::DataCRSP, app::Dict{String,Any})
     # One arc packing set per terminal j: all star arcs that cover j, either because j is on the ring
     # (star arcs of j itself) or because j is in the star (star arcs of another point i with j ∈ B).
     # These packing sets overlap, since a star arc with |B| >= 2 covers several terminals.
-    set_arc_packing_sets!(crsp, [[(G, a) for a in ps_arcs[j]] for j in T])
+    set_arc_packing_sets!(crsp, [Tuple{VrpGraph,Int}[(G, a) for a in ps_arcs[j]] for j in T])
 
     # One additional arc elementarity set per Steiner point i (its star arcs), so that ng-paths avoid
-    # visiting i more than once in the same ring. They are not packing sets because the model allows
-    # a Steiner point to belong to several rings.
+    # visiting i more than once in the same ring (the master constraints steiner_deg forbid it anyway).
     es_points = T
     if !app["no_steiner_elem_sets"]
-        set_additional_arc_elementarity_sets!(crsp, [(G, es_arcs[i]) for i in S_ring])
+        set_additional_arc_elementarity_sets!(crsp, Tuple{VrpGraph,Vector{Int}}[(G, es_arcs[i]) for i in S_ring])
         # elementarity set ids: 1..|T| for the terminals (packing sets), then |T|+1.. for the Steiner points
         es_points = vcat(T, S_ring)
     end
     define_elementarity_sets_distance_matrix!(crsp, G, [[distance(data, (i, j)) for j in es_points] for i in es_points])
+
+    if !app["no_capacity_cuts"]
+        function rcc_callback()
+            xbar = Dict(e => value(x[e]) for e in E)
+            wbar = Dict(k => value(w[k]) for k in w_keys(stars))
+            cuts = separate_rcc(data, stars, xbar, wbar)
+            for cut in cuts
+                add_dynamic_constr!(crsp.optimizer,
+                    vcat([x[e] for e in cut.edges], [w[k] for k in cut.stars]),
+                    vcat(ones(length(cut.edges)), fill(2.0, length(cut.stars))), >=, cut.rhs, "rcc")
+            end
+            println("RCC separation: $(length(cuts)) cuts added")
+        end
+        add_cut_callback!(crsp, rcc_callback, "rcc")
+    end
 
     set_branching_priority!(crsp, "x", 2)
     set_branching_priority!(crsp, "z", 1)

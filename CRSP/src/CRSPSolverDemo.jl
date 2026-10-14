@@ -1,10 +1,12 @@
 __precompile__(false)
 module CRSPSolverDemo
-using VrpSolver, JuMP, ArgParse, HiGHS
+using VrpSolver, JuMP, ArgParse, HiGHS, CPLEX
 
 include("data.jl")
+include("rcc_separation.jl")
 include("model.jl")
 include("solution.jl")
+include("compact_model.jl")
 
 function parse_commandline(args_array::Vector{String}, appfolder::String)
     s = ArgParseSettings(
@@ -32,6 +34,12 @@ function parse_commandline(args_array::Vector{String}, appfolder::String)
         help = "Cost reduction factor of the star connections: b_ij = factor * distance(i,j)"
         arg_type = Float64
         default = 0.5
+        "--compact", "-m"
+        help = "Solves the compact two-commodity flow MIP with CPLEX instead of calling the VRPSolver"
+        action = :store_true
+        "--no_capacity_cuts", "-x"
+        help = "Does not separate the strengthened rounded capacity cuts (Section 6.4.9)"
+        action = :store_true
         "--no_steiner_elem_sets", "-e"
         help = "Does not define the additional elementarity sets for the Steiner points"
         action = :store_true
@@ -70,7 +78,9 @@ function run_crsp(app::Dict{String,Any})
     print_instance(data)
 
     solution_found = false
-    if !app["nosolve"]
+    if !app["nosolve"] && app["compact"]
+        (status, solution_found, sol) = solve_compact_model(data, app)
+    elseif !app["nosolve"]
         (model, x, z) = build_model(data, app)
 
         if app["show_complete_form"]
