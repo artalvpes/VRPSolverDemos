@@ -35,7 +35,7 @@ function parse_commandline(args_array::Vector{String}, appfolder::String)
         arg_type = Float64
         default = 0.5
         "--compact", "-m"
-        help = "Solves the compact two-commodity flow MIP with CPLEX instead of calling the VRPSolver"
+        help = "Solves the set partitioning MIP over all enumerated ring-stars with CPLEX instead of calling the VRPSolver (only for small capacities)"
         action = :store_true
         "--no_capacity_cuts", "-x"
         help = "Does not separate the strengthened rounded capacity cuts (Section 6.4.9)"

@@ -1,12 +1,14 @@
-# Random tests: compares the compact MIP (CPLEX) with the VRPSolver on random CRSP instances.
+# Random tests: compares the set partitioning MIP (CPLEX) with the VRPSolver on random CRSP instances.
 #
 # Usage (from the CRSP folder):
-#   julia src/test_random.jl [deadline HH:MM (default 07:00)] [seed (default: random)]
+#   julia src/test_random.jl [mode (default 0)] [deadline HH:MM (default 07:00)] [seed (default: random)]
+# mode 0 uses the default configuration file, mode k >= 1 uses config/CRSP_k.cfg.
 #
 # Each iteration generates a random CVRP instance with 25 vertices in the CVRPLIB format of the
-# A set (integer coordinates in [1,100], capacity 100), draws the CRSP parameters (-p, -k, -a) and
-# solves it with both methods. When both claim optimality but the values differ, or when an error
-# happens, the instance and a report are saved in the CRSP folder. The solvers' output goes to
+# A set (integer coordinates in [1,100], capacity 50, small enough for the set partitioning MIP to
+# enumerate all ring-stars), draws the CRSP parameters (-p, -k, -a) and solves it with both methods.
+# When both claim optimality but the values differ, or when an error happens, the instance and a
+# report are saved in the CRSP folder. The solvers' output goes to
 # out/test_random.log; a summary is printed every 10 instances.
 
 if haskey(ENV, "JULIA_LOAD_PATH")
@@ -28,7 +30,7 @@ const C = CRSPSolverDemo
 
 const DEMO_DIR = normpath(joinpath(@__DIR__, ".."))
 const NB_VERTICES = 25 # including the root
-const CAPACITY = 100
+const CAPACITY = 50
 const STEINER_PCTS = [0.0, 10.0, 25.0, 40.0]
 const STAR_SIZES = [2, 3, 4]
 const STAR_FACTORS = [0.3, 0.5, 0.8]
@@ -96,7 +98,7 @@ end
 function solution_str(sol)
     sol === nothing && return "  (none)\n"
     return join(["Ring-star #$k: " *
-                 join([haskey(rs.stars, i) ? "$i{$(join(rs.stars[i], ","))}" : "$i" for i in rs.ring], " ") * "\n"
+        join([haskey(rs.stars, i) ? "$i{$(join(rs.stars[i], ","))}" : "$i" for i in rs.ring], " ") * "\n"
                  for (k, rs) in enumerate(sol.ringstars)])
 end
 
@@ -112,7 +114,7 @@ function run_instance(inst_path::String, name::String, args::Vector{String})
     t = time()
     (model, x, z) = C.build_model(data, app)
     optimizer = VrpOptimizer(model, app["cfg"], name)
-    set_cutoff!(optimizer, app["ub"])
+    set_cutoff!(optimizer, (app["ub"] == 0) ? (sol_c.cost + 1) : app["ub"])
     (st_v, found_v) = optimize!(optimizer)
     sol_v = found_v ? C.getsolution(data, optimizer, x, z, get_objective_value(optimizer), app) : nothing
     found_v && C.checksolution(data, sol_v)
@@ -121,7 +123,7 @@ function run_instance(inst_path::String, name::String, args::Vector{String})
     return (st_c, sol_c, time_c, st_v, sol_v, time_v)
 end
 
-function main_test(deadline::DateTime, seed::Int)
+function main_test(mode::Int, deadline::DateTime, seed::Int)
     println("Random CRSP tests (seed $seed) until $deadline. Solver output in out/test_random.log")
     rng = MersenneTwister(seed)
     st = Stats(0, 0, 0, 0, 0, 0.0, 0.0)
@@ -133,6 +135,12 @@ function main_test(deadline::DateTime, seed::Int)
         write_instance(inst_path, name, rng)
         args = ["-p", string(rand(rng, STEINER_PCTS)), "-k", string(rand(rng, STAR_SIZES)),
             "-a", string(rand(rng, STAR_FACTORS))]
+        if mode == 0
+            args = vcat(args, ["-u", "0"])
+        end
+        if mode >= 1
+            args = vcat(args, ["-c", "config/CRSP_$(mode).cfg", "-u", "0"])
+        end
         st.total += 1
         try
             res = redirect_stdout(log) do
@@ -146,11 +154,11 @@ function main_test(deadline::DateTime, seed::Int)
             st.time_vrpsolver += time_v
             if st_c == :Optimal && st_v == :Optimal
                 if (sol_c === nothing) != (sol_v === nothing) ||
-                   (sol_c !== nothing && abs(sol_c.cost - sol_v.cost) > 0.5)
+                    (sol_c !== nothing && abs(sol_c.cost - sol_v.cost) > 0.5)
                     st.diverge += 1
                     save_case("divergence", inst_path, name, args,
                         "compact: $(sol_c === nothing ? "infeasible" : sol_c.cost)\n$(solution_str(sol_c))" *
-                        "vrpsolver: $(sol_v === nothing ? "infeasible" : sol_v.cost)\n$(solution_str(sol_v))")
+                            "vrpsolver: $(sol_v === nothing ? "infeasible" : sol_v.cost)\n$(solution_str(sol_v))")
                 else
                     st.agree += 1
                 end
@@ -173,6 +181,7 @@ function main_test(deadline::DateTime, seed::Int)
     print_stats(st, deadline)
 end
 
-deadline = deadline_from(length(ARGS) >= 1 ? ARGS[1] : "07:00")
-seed = length(ARGS) >= 2 ? parse(Int, ARGS[2]) : rand(1:10^6)
-main_test(deadline, seed)
+mode = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 0
+deadline = deadline_from(length(ARGS) >= 2 ? ARGS[2] : "07:00")
+seed = length(ARGS) >= 3 ? parse(Int, ARGS[3]) : rand(1:(10^6))
+main_test(mode, deadline, seed)
