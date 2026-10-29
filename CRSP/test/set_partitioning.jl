@@ -1,6 +1,6 @@
 # Set partitioning MIP for the CRSP over all feasible ring-stars, solved with CPLEX.
 # It is meant to validate the VRPSolver model (6.37) on small instances with a small capacity W (so that
-# all ring-stars can be enumerated), and it models the same problem:
+# all ring-stars can be enumerated), and it models the same problem as the demo (src/model.jl):
 #  - every terminal is either on exactly one ring or connected through a star to exactly one ring point;
 #  - every Steiner point is visited at most once (as imposed by the master constraints steiner_deg);
 #  - a Steiner point on a ring must have a non-empty star (as in the star arcs A1).
@@ -11,16 +11,18 @@
 # a single point i gives the ring 0-i-0 with cost 2c(0,i)). For each pair (terminals covered, Steiner
 # points used), only the cheapest ring-star is kept as a column.
 
+using CPLEX
+
 # Held-Karp over the root (position 0) and the points P (positions 1..N), with the subsets as bitmasks
 struct RingTSP
     dist::Matrix{Float64} # dist[p+1, q+1] = c(P[p], P[q]), with P[0] = root
     memo::Dict{Tuple{UInt64,Int},Float64} # (mask, last) => cheapest path from the root through mask ending at last
 end
 
-function RingTSP(data::DataCRSP, P::Vector{Int})
+function RingTSP(data, P::Vector{Int})
     pts = vcat([0], P)
     n = length(pts)
-    dist = [(p == q) ? 0.0 : c(data, minmax(pts[p], pts[q])) for p in 1:n, q in 1:n]
+    dist = [(p == q) ? 0.0 : C.c(data, minmax(pts[p], pts[q])) for p in 1:n, q in 1:n]
     return RingTSP(dist, Dict{Tuple{UInt64,Int},Float64}())
 end
 
@@ -55,20 +57,20 @@ struct RingStarColumn
     cost::Float64
     terminals::Vector{Int} # covered terminals
     steiner::Vector{Int} # Steiner points on the ring
-    ringstar::RingStar
+    ringstar::C.RingStar
 end
 
 # enumerate the cheapest ring-star for each pair (terminals covered, Steiner points used)
-function enumerate_ringstars(data::DataCRSP)
-    T, W = terminals(data), capacity(data)
-    P = filter(i -> !isempty(feasible_stars(data, i)), points(data)) # points that may be on a ring
+function enumerate_ringstars(data)
+    T, W = C.terminals(data), C.capacity(data)
+    P = filter(i -> !isempty(C.feasible_stars(data, i)), C.points(data)) # points that may be on a ring
     N = length(P)
     (length(T) > 64 || N > 64) && error("The set partitioning model supports at most 64 points")
     tbit = Dict(j => bit(k) for (k, j) in enumerate(T))
     steiner_mask = reduce(|, [bit(p) for p in 1:N if !(P[p] in T)]; init=UInt64(0))
     # ring elements of each point: (covered terminals, demand, star cost, star)
-    elems = [[(reduce(|, [tbit[j] for j in B]; init=(P[p] in T) ? tbit[P[p]] : UInt64(0)), d(data, P[p], B),
-        sum(b(data, P[p], j) for j in B; init=0.0), B) for B in feasible_stars(data, P[p])] for p in 1:N]
+    elems = [[(reduce(|, [tbit[j] for j in B]; init=(P[p] in T) ? tbit[P[p]] : UInt64(0)), C.d(data, P[p], B),
+        sum(C.b(data, P[p], j) for j in B; init=0.0), B) for B in C.feasible_stars(data, P[p])] for p in 1:N]
     tsp = RingTSP(data, P)
     best = Dict{Tuple{UInt64,UInt64},Tuple{Float64,UInt64,Vector{Vector{Int}}}}()
     stars = Vector{Vector{Int}}(undef, N) # star of each point on the current ring
@@ -93,16 +95,19 @@ function enumerate_ringstars(data::DataCRSP)
     columns = RingStarColumn[]
     for ((covered, smask), (cost, ring, ring_stars)) in best
         star_of = Dict(P[p] => B for (p, B) in zip(positions(ring), ring_stars) if !isempty(B))
-        rs = RingStar([P[p] for p in ring_order(tsp, ring)], star_of)
+        rs = C.RingStar([P[p] for p in ring_order(tsp, ring)], star_of)
         push!(columns, RingStarColumn(cost, [T[k] for k in positions(covered)], [P[p] for p in positions(smask)], rs))
     end
     println("Enumeration: $nb_ringstars ring-stars, $(length(columns)) columns, " *
-        "$(length(tsp.memo)) Held-Karp states")
+            "$(length(tsp.memo)) Held-Karp states")
     return columns
 end
 
-function build_compact_model(data::DataCRSP)
-    T, S = terminals(data), steiner_points(data)
+# solve the set partitioning model; return (status, solution or nothing, time, number of columns),
+# where status is :Optimal (with or without a solution, the latter meaning infeasible) or another symbol
+function solve_set_partitioning(data, app::Dict{String,Any})
+    t = time()
+    T, S = C.terminals(data), C.steiner_points(data)
     columns = enumerate_ringstars(data)
     covering = Dict(j => Int[] for j in T)
     using_steiner = Dict(s => Int[] for s in S)
@@ -118,32 +123,23 @@ function build_compact_model(data::DataCRSP)
     @constraint(m, cover[j in T], sum(λ[k] for k in covering[j]) == 1)
     # every Steiner point is on at most one ring
     @constraint(m, steiner[s in S; !isempty(using_steiner[s])], sum(λ[k] for k in using_steiner[s]) <= 1)
-
-    return m, columns
-end
-
-function compact_solution(m, columns::Vector{RingStarColumn}, app::Dict{String,Any})
-    λ = m[:λ]
-    ringstars = [col.ringstar for (k, col) in enumerate(columns) if value(λ[k]) > 0.5]
-    objval = objective_value(m)
-    if !app["noround"]
-        objval = trunc(Int, round(objval))
-    end
-    return Solution(objval, ringstars)
-end
-
-# solve the set partitioning model; return (status, solution_found, solution)
-function solve_compact_model(data::DataCRSP, app::Dict{String,Any})
-    m, columns = build_compact_model(data)
-    println("Set partitioning model: $(num_variables(m)) variables, " *
-        "$(num_constraints(m; count_variable_in_set_constraints=false)) constraints")
-    # (app["ub"] < 10000000.0) && set_attribute(m, "CPXPARAM_MIP_Tolerances_UpperCutoff", app["ub"] + 0.5)
+    println("Set partitioning model: $(length(columns)) columns")
     optimize!(m)
-    status = termination_status(m)
-    found = primal_status(m) == MOI.FEASIBLE_POINT
-    println("statistics_compact: $(basename(app["instance"])) & $status & " *
-        "$(found ? objective_value(m) : "--") & $(objective_bound(m)) & $(round(solve_time(m), digits=2)) \\\\")
-    flush(stdout)
-    sol = found ? compact_solution(m, columns, app) : nothing
-    return (status == MOI.OPTIMAL ? :Optimal : status), found, sol
+
+    term = termination_status(m)
+    # the objective is bounded, so INFEASIBLE_OR_UNBOUNDED means infeasible
+    status = (term in (MOI.OPTIMAL, MOI.INFEASIBLE, MOI.INFEASIBLE_OR_UNBOUNDED)) ? :Optimal : Symbol(term)
+    sol = nothing
+    if primal_status(m) == MOI.FEASIBLE_POINT
+        ringstars = [col.ringstar for (k, col) in enumerate(columns) if value(λ[k]) > 0.5]
+        objval = objective_value(m)
+        if !app["noround"]
+            objval = trunc(Int, round(objval))
+        end
+        sol = C.Solution(objval, ringstars)
+        C.checksolution(data, sol) # the cost of the ring-stars is recomputed by the demo code
+    end
+    println("statistics_set_partitioning: $(basename(app["instance"])) & $term & " *
+            "$((sol === nothing) ? "--" : sol.cost) & $(round(time() - t, digits=2)) \\\\")
+    return (status, sol, time() - t, length(columns))
 end
