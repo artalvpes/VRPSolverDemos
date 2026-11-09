@@ -36,9 +36,10 @@ function run_gap(app::Dict{String,Any})
     flush(stdout)
 
     data = readGAPData(app["instance"])
+    instance_name = split(basename(app["instance"]), ".")[1]
 
     (model, x) = build_model(data)
-    optimizer = VrpOptimizer(model, app["cfg"])
+    optimizer = VrpOptimizer(model, app["cfg"], instance_name)
     set_cutoff!(optimizer, app["ub"])
 
     (status, solution_found) = optimize!(optimizer)
