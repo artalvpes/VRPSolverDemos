@@ -1,0 +1,34 @@
+# Nauss instances solved without an initial upper bound, with the diving heuristic of Pessoa et al. (2020) at the root
+# (option -d: DivingHeurUseDepthLimit = 0, MaxLDSdepth = 3, MaxLDSbreadth = 2). See NAUSS_BENCHMARK.md.
+# Tip: after a batch execution, call 'grep statistics: out/nauss-diving.out -h | cut -c13-' to get the results as rows for a LaTeX table.
+# julia src/run.jl -b nauss-diving.batch &> out/nauss-diving.out
+data/Nauss/gapD-25-90-e0.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-90-e1.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-90-e2.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-90-e3.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-90-e4.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-90-e5.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-90-e6.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-90-e7.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-90-e8.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-90-e9.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-100-e0.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-100-e1.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-100-e2.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-100-e3.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-100-e4.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-100-e5.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-100-e6.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-100-e7.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-100-e8.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-25-100-e9.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-30-100-e0.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-30-100-e1.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-30-100-e2.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-30-100-e3.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-30-100-e4.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-30-100-e5.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-30-100-e6.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-30-100-e7.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-30-100-e8.txt -d --cfg config/GAP_Nauss.cfg
+data/Nauss/gapD-30-100-e9.txt -d --cfg config/GAP_Nauss.cfg
