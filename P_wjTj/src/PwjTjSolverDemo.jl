@@ -54,6 +54,8 @@ function run_pwjtj(app::Dict{String,Any})
 
         (status, solution_found) = optimize!(optimizer)
         if solution_found
+            # checks the values of x against the problem definition, then recovers the schedules from them
+            checksolution_x(data, Dict(a => get_value(optimizer, x[a]) for a in A), node_ids, get_objective_value(optimizer))
             sol = getsolution(data, x, A, node_ids, get_objective_value(optimizer), optimizer)
         end
     end
