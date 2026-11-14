@@ -105,43 +105,45 @@ function checksolution(data::DataCRSP, solution)
 end
 
 # write solution as TikZ figure (.tex)
-# root: yellow square; terminals: white circles; Steiner points: gray diamonds (faded if unused);
-# ring edges: solid lines; star connections: dashed lines.
+# root: yellow square; terminals: white circles; Steiner points: gray diamonds (faded if unused).
+# Each ring-star has its own color (as in the VRPL demo): ring edges are solid lines and star connections are
+# dotted lines of the same color. The lines are drawn first, so that the points are drawn over them.
 function drawsolution(tikzpath, data::DataCRSP, solution)
     used = Set(i for rs in solution.ringstars for i in rs.ring)
+    colors = ["blue", "red!80!black", "green!50!black", "orange!90!black", "violet", "teal", "brown", "magenta",
+        "olive", "cyan!60!black"]
+    xs, ys = [v.pos_x for v in data.G.V], [v.pos_y for v in data.G.V]
+    xmin, xmax = extrema(xs)
+    ymin, ymax = extrema(ys)
+    scale = 12 / max(xmax - xmin, ymax - ymin, 1e-9) # the figure is at most 12cm wide/high
+    pos(v) = (round(scale * (v.pos_x - xmin), digits=3), round(scale * (v.pos_y - ymin), digits=3))
     open(tikzpath, "w") do f
-        write(f, "\\documentclass[crop,tikz]{standalone}\n")
-        write(f, "\\usetikzlibrary{shapes.geometric}\n\\begin{document}\n")
-        # get limits to draw
-        pos_x_vals = [i.pos_x for i in data.G.V]
-        pos_y_vals = [i.pos_y for i in data.G.V]
-        scale_fac = 1 / (max(maximum(pos_x_vals), maximum(pos_y_vals)) / 10)
-        write(f, "\\begin{tikzpicture}[thick, scale=1, every node/.style={scale=0.3}]\n")
+        write(f, "\\documentclass[crop,tikz]{standalone}\n\\usetikzlibrary{shapes.geometric}\n\\begin{document}\n")
+        write(f, "\\begin{tikzpicture}[every node/.style={font=\\tiny, inner sep=1pt}]\n")
+        for v in data.G.V
+            x, y = pos(v)
+            write(f, "\t\\coordinate (v$(v.id_vertex)) at ($x,$y);\n")
+        end
+        for (r, rs) in enumerate(solution.ringstars)
+            col = colors[mod1(r, length(colors))]
+            ring = vcat([data.root_id], rs.ring, [data.root_id])
+            write(f, "\t\\draw[$col, line width=0.9pt] " * join(["(v$i)" for i in ring], " -- ") * ";\n")
+            for (i, B) in rs.stars, j in B
+                write(f, "\t\\draw[$col, dotted, line width=0.7pt] (v$i) -- (v$j);\n")
+            end
+        end
         for v in data.G.V
             i = v.id_vertex
-            x_plot, y_plot = scale_fac * v.pos_x, scale_fac * v.pos_y
             style = if i == data.root_id
-                "draw, line width=0.1mm, rectangle, fill=yellow, inner sep=0.05cm, scale=1.4"
+                "draw, rectangle, fill=yellow, minimum size=8pt"
             elseif i in steiner_points(data)
-                "draw, line width=0.1mm, diamond, fill=gray!40, inner sep=0.03cm" *
-                (i in used ? "" : ", opacity=.3")
+                "draw, diamond, fill=gray!40, minimum size=7pt" * (i in used ? "" : ", opacity=.3")
             else
-                "draw, line width=0.1mm, circle, fill=white, inner sep=0.05cm"
+                "draw, circle, fill=white, minimum size=6pt"
             end
-            write(f, "\t\\node[$style] (v$i) at ($(x_plot),$(y_plot)) {\\footnotesize $i};\n")
+            write(f, "\t\\node[$style] at (v$i) {$i};\n")
         end
-        for rs in solution.ringstars
-            prev = 0
-            for i in vcat(rs.ring, [0])
-                write(f, "\t\\draw[-,line width=0.8pt] (v$prev) -- (v$i);\n")
-                prev = i
-            end
-            for (i, B) in rs.stars, j in B
-                write(f, "\t\\draw[dashed,-,line width=0.5pt] (v$i) -- (v$j);\n")
-            end
-        end
-        write(f, "\\end{tikzpicture}\n")
-        write(f, "\\end{document}\n")
+        write(f, "\\end{tikzpicture}\n\\end{document}\n")
     end
 end
 

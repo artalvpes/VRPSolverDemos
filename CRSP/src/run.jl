@@ -14,7 +14,7 @@ end
 using Pkg
 Pkg.activate(joinpath(@__DIR__, ".."))
 if !haskey(Pkg.project().dependencies, "VrpSolver") || !isnothing(findfirst(isequal("--update"), ARGS))
-    Pkg.develop(path=joinpath(first(DEPOT_PATH), "dev", "VrpSolver.jl")) # local development version
+    Pkg.add(url="https://github.com/tbulhoes/VrpSolver.jl", rev="update_rcsp_interface")
     Pkg.instantiate()
 end
 
