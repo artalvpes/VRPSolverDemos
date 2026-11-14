@@ -1,0 +1,13 @@
+name = "VSBPPSolverDemo"
+uuid = "ad013ce7-44cb-4ccb-8332-f99b7cfa4ea2"
+authors = ["Eduardo Uchoa <eduardo.uchoa@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
+[compat]
+ArgParse = "1.2.0"
+JuMP = "1.23.2"

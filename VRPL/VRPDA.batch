@@ -1,0 +1,103 @@
+# Tip: after a batch execution, call 'grep statistics: out/VRPDA.out -h | cut -c13-' to get the results as rows for a LaTeX table.
+# julia src/run.jl -b VRPDA.batch &> out/VRPDA.out
+# each customer can be assigned to its 3 nearest lockers (default), no upper bound, no limit on the number of routes
+data/VRPDA/s10k20_1.vdap
+data/VRPDA/s10k20_2.vdap
+data/VRPDA/s10k20_3.vdap
+data/VRPDA/s10k20_4.vdap
+data/VRPDA/s10k20_5.vdap
+data/VRPDA/s10k30_1.vdap
+data/VRPDA/s10k30_2.vdap
+data/VRPDA/s10k30_3.vdap
+data/VRPDA/s10k30_4.vdap
+data/VRPDA/s10k30_5.vdap
+data/VRPDA/s10k40_1.vdap
+data/VRPDA/s10k40_2.vdap
+# data/VRPDA/s10k40_3.vdap   (not solved in 10 minutes, November 2026; lower bound 1609.98)
+data/VRPDA/s10k40_4.vdap
+data/VRPDA/s10k40_5.vdap
+data/VRPDA/s10k50_1.vdap
+# data/VRPDA/s10k50_2.vdap   (not solved in 10 minutes, November 2026; lower bound 1877.24)
+data/VRPDA/s10k50_3.vdap
+data/VRPDA/s10k50_4.vdap
+data/VRPDA/s10k50_5.vdap
+data/VRPDA/s25k20_1.vdap
+data/VRPDA/s25k20_2.vdap
+data/VRPDA/s25k20_3.vdap
+data/VRPDA/s25k20_4.vdap
+data/VRPDA/s25k20_5.vdap
+data/VRPDA/s25k30_1.vdap
+data/VRPDA/s25k30_2.vdap
+data/VRPDA/s25k30_3.vdap
+data/VRPDA/s25k30_4.vdap
+data/VRPDA/s25k30_5.vdap
+data/VRPDA/s25k40_1.vdap
+data/VRPDA/s25k40_2.vdap
+data/VRPDA/s25k40_3.vdap
+data/VRPDA/s25k40_4.vdap
+data/VRPDA/s25k40_5.vdap
+data/VRPDA/s25k50_1.vdap
+data/VRPDA/s25k50_2.vdap
+data/VRPDA/s25k50_3.vdap
+data/VRPDA/s25k50_4.vdap
+data/VRPDA/s25k50_5.vdap
+data/VRPDA/s35k40_1.vdap
+data/VRPDA/s35k40_2.vdap
+data/VRPDA/s35k40_3.vdap
+data/VRPDA/s35k40_4.vdap
+data/VRPDA/s35k40_5.vdap
+data/VRPDA/s35k50_1.vdap
+data/VRPDA/s35k50_2.vdap
+data/VRPDA/s35k50_3.vdap
+data/VRPDA/s35k50_4.vdap
+data/VRPDA/s35k50_5.vdap
+data/VRPDA/s35k60_1.vdap
+data/VRPDA/s35k60_2.vdap
+data/VRPDA/s35k60_3.vdap
+data/VRPDA/s35k60_4.vdap
+data/VRPDA/s35k60_5.vdap
+# data/VRPDA/s35k70_1.vdap   (not solved in 10 minutes, November 2026; lower bound 1753.92)
+data/VRPDA/s35k70_2.vdap
+data/VRPDA/s35k70_3.vdap
+# data/VRPDA/s35k70_4.vdap   (not solved in 10 minutes, November 2026; lower bound 1682.42)
+data/VRPDA/s35k70_5.vdap
+data/VRPDA/s40k50_1.vdap
+data/VRPDA/s40k50_2.vdap
+data/VRPDA/s40k50_3.vdap
+data/VRPDA/s40k50_4.vdap
+data/VRPDA/s40k50_5.vdap
+# data/VRPDA/s40k60_1.vdap   (not solved in 10 minutes, November 2026; lower bound 1455.37)
+data/VRPDA/s40k60_2.vdap
+data/VRPDA/s40k60_3.vdap
+data/VRPDA/s40k60_4.vdap
+data/VRPDA/s40k60_5.vdap
+data/VRPDA/s40k70_1.vdap
+data/VRPDA/s40k70_2.vdap
+# data/VRPDA/s40k70_3.vdap   (not solved in 10 minutes, November 2026; lower bound 1639.21)
+data/VRPDA/s40k70_4.vdap
+data/VRPDA/s40k70_5.vdap
+# data/VRPDA/s40k80_1.vdap   (not solved in 10 minutes, November 2026; lower bound 1866.79)
+# data/VRPDA/s40k80_2.vdap   (not solved in 10 minutes, November 2026; lower bound 1816.29)
+# data/VRPDA/s40k80_3.vdap   (not solved in 10 minutes, November 2026; lower bound 1909.98)
+data/VRPDA/s40k80_4.vdap
+data/VRPDA/s40k80_5.vdap
+data/VRPDA/s50k60_1.vdap
+# data/VRPDA/s50k60_2.vdap   (not solved in 10 minutes, November 2026; lower bound 1407.28)
+data/VRPDA/s50k60_3.vdap
+data/VRPDA/s50k60_4.vdap
+data/VRPDA/s50k60_5.vdap
+data/VRPDA/s50k70_1.vdap
+# data/VRPDA/s50k70_2.vdap   (not solved in 10 minutes, November 2026; lower bound 1586.57)
+# data/VRPDA/s50k70_3.vdap   (not solved in 10 minutes, November 2026; lower bound 1622.34)
+data/VRPDA/s50k70_4.vdap
+data/VRPDA/s50k70_5.vdap
+data/VRPDA/s50k80_1.vdap
+data/VRPDA/s50k80_2.vdap
+# data/VRPDA/s50k80_3.vdap   (not solved in 10 minutes, November 2026; lower bound 1854.67)
+# data/VRPDA/s50k80_4.vdap   (not solved in 10 minutes, November 2026; lower bound 1749.49)
+# data/VRPDA/s50k80_5.vdap   (not solved in 10 minutes, November 2026; lower bound 1736.89)
+# data/VRPDA/s50k90_1.vdap   (not solved in 10 minutes, November 2026; lower bound 1932.70)
+# data/VRPDA/s50k90_2.vdap   (not solved in 10 minutes, November 2026; lower bound 2052.64)
+data/VRPDA/s50k90_3.vdap
+# data/VRPDA/s50k90_4.vdap   (not solved in 10 minutes, November 2026; lower bound 1925.85)
+# data/VRPDA/s50k90_5.vdap   (not solved in 10 minutes, November 2026; lower bound 2100.18)

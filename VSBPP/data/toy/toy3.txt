@@ -1,0 +1,13 @@
+# 8 items, 2 stock types with several units; penalties lower than the cost of an extra stock
+# J K / J lines: w_j p_j / K lines: W_k u_k c_k
+8 2
+20 9
+22 25
+11 7
+36 22
+13 16
+28 6
+39 21
+16 6
+50 3 30
+80 2 42

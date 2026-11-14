@@ -4,6 +4,10 @@
 
 **Running the CVRP demo:** The environment variable `BAPCOD_RCSP_LIB` should be set with the path to the VRPSolver-library binary file (including its name) whenever you run this demo. Then, inside the subdirectory CVRP of the directory where you cloned this repository, just type `julia src/run.jl data/A/A-n37-k6.vrp -m 6 -M 6 -u 950` to solve a small classical CVRP instance providing an initial upper bound.
 
+**Upper bounds:** a good upper bound (option `--ub`/`-u`) is very important for the performance of the branch-cut-and-price. When no upper bound is given, the demos run a simple primal heuristic (`src/heuristic.jl`; option `--noheur` to disable it) and use its cost + 1 (or + the smallest cost step) as the upper bound. The option `--tentative`/`-T DELTA1 DELTA2` (also `-t` in the demos without TikZ figures) solves the root node first, giving its lower bound LB, and then the problem with the upper bounds LB + DELTA1, LB + DELTA1 + DELTA2, LB + DELTA1 + 2 DELTA2, ... until a solution is found; at the end it prints a valid lower bound, also when the last run stops at the time limit. The batch files give the optimal cost + 1 as upper bound, for the instances solved in a reasonable time; the harder ones are commented out.
+
+**Quick test:** `bash quick_test.sh`, from the root of this repository, solves one small instance of each demo (each in a few seconds, plus the start of Julia) and prints a summary; set `CCVRP_LIB` to include the CCVRP demo, which needs a library built with its custom resource (see `CCVRP/README.md`). Each demo folder has its own `README.md`.
+
 **Acknowledgements:** These demos use the Julia interface [VrpSolver.jl](https://github.com/tbulhoes/VrpSolver.jl) developed jointly with Teobaldo Bulhões by his initiative.
 
 **Reporting issues:** When reporting bugs, please choose examples as small as possible, provide the necessary data to reproduce the issue, and describe the expected behavior (the optimal solution and its cost, for example).
