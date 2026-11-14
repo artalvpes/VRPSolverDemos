@@ -181,6 +181,8 @@ end
 
 # write solution as TikZ figure (.tex) 
 function drawsolution(tikzpath, data, solution)
+    colors = ["blue", "red!80!black", "green!50!black", "orange!90!black", "violet", "teal", "brown", "magenta",
+        "olive", "cyan!60!black"] # one colour per route
     open(tikzpath, "w") do f
         write(f, "\\documentclass[crop,tikz]{standalone}\n")
         write(
@@ -220,14 +222,15 @@ function drawsolution(tikzpath, data, solution)
         end
         write(f, "\\begin{pgfonlayer}{back}\n")
         for (idr, r) in enumerate(solution.routes)
+            col = colors[mod1(idr, length(colors))]
             prev = 0
             for i in r
                 a = (prev, i)
-                edge_style = (prev == 0 || i == 0) ? "dashed,line width=0.2pt,opacity=.4" : "line width=0.4pt"
+                edge_style = (prev == 0 || i == 0) ? "$col,line width=0.4pt" : "$col,line width=0.8pt" # thinner at the depot
                 write(f, "\t\\path[->,$(edge_style)] (v$(a[1])) edge node {} (v$(a[2]));\n")
                 prev = i
             end
-            write(f, "\t\\path[->,dashed,line width=0.2pt,opacity=.4] (v$prev) edge node {} (v0);\n")
+            write(f, "\t\\path[->,$col,line width=0.4pt] (v$prev) edge node {} (v0);\n")
         end
         write(f, "\\end{pgfonlayer}\n\\end{tikzpicture}\n")
         write(f, "\\end{document}\n")

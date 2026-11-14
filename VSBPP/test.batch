@@ -1,0 +1,16 @@
+# Tip: after a batch execution, call 'grep statistics: out/test.out -h | cut -c13-' to get the results as rows for a LaTeX table.
+# mkdir -p out && julia src/run.jl -b test.batch &> out/test.out
+# Upper bounds are optimal costs + 1 (optima found by this demo, November 2026).
+# Classes: vc (stock cost 7000*(W/10000)^0.8) and zc (stock cost 0), one instance per class for n = 20, 30, ..., 60, plus zc_K5_n100_u4_s1.
+# Not included: vc_K5_n100_u11_s1, not solved within 30 minutes (best bound 225968, best solution 226057).
+data/test/vc_K5_n20_u1_s1.txt -u 45271
+data/test/zc_K5_n20_u1_s1.txt -u 16067
+data/test/vc_K3_n30_u3_s1.txt -u 67122
+data/test/zc_K5_n30_u1_s1.txt -u 44260
+data/test/vc_K4_n40_u3_s1.txt -u 89720
+data/test/zc_K5_n40_u2_s1.txt -u 33090
+data/test/vc_K5_n50_u11_s1.txt -u 106210
+data/test/zc_K5_n50_u2_s1.txt -u 63149
+data/test/vc_K5_n60_u4_s1.txt -u 134411
+data/test/zc_K5_n60_u2_s1.txt -u 94338
+data/test/zc_K5_n100_u4_s1.txt -u 141224

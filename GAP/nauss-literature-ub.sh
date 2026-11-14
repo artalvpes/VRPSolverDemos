@@ -1,4 +1,5 @@
 # Nauss instances with the upper bounds of the literature (see nauss-literature-ub.batch)
+mkdir -p out
 julia src/run.jl data/Nauss/gapD-25-90-e0.txt -u 5686 --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e0.out
 julia src/run.jl data/Nauss/gapD-25-90-e1.txt -u 5637 --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e1.out
 julia src/run.jl data/Nauss/gapD-25-90-e2.txt -u 5680 --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e2.out

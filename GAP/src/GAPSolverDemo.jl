@@ -4,6 +4,7 @@ using VrpSolver, JuMP, ArgParse
 
 include("data.jl")
 include("model.jl")
+include("heuristic.jl")
 
 function parse_commandline(args_array::Array{String,1}, appfolder::String)
     s = ArgParseSettings(
@@ -19,12 +20,14 @@ function parse_commandline(args_array::Array{String,1}, appfolder::String)
         help = "Configuration file path"
         default = "$appfolder/../config/GAP_Classic.cfg"
         "--ub", "-u"
-        help = "Upper bound (primal bound)"
+        help = "Upper bound (primal bound). If not given, the heuristic of heuristic.jl gives it (cost + 1)."
         arg_type = Float64
-        default = 10000000.0
+        "--noheur"
+        help = "Without --ub, do not run the heuristic (no upper bound)"
+        action = :store_true
         "--batch", "-b"
         help = "batch file path"
-        "--tentative", "-t"
+        "--tentative", "-t", "-T"
         help = "Tentative upper bounds DELTA1 DELTA2: solve the root without upper bound to get its lower bound " *
                "LB, then solve with the upper bounds LB + DELTA1, LB + DELTA1 + DELTA2, LB + DELTA1 + 2 DELTA2, " *
                "... until a solution is found"
@@ -68,6 +71,14 @@ function solve_gap(data::DataGap, app::Dict{String,Any}, instance_name, ub::Floa
     return status, solution_found, optimizer, x
 end
 
+# Valid lower bound on the optimal cost after a run with the cutoff ub: if the run ends with the status Optimal, its
+# solution is optimal, or there is no solution of cost below ub; otherwise (time limit), the global dual bound of the
+# run is valid for the solutions of cost below ub, and it is at most ub.
+function run_lower_bound(status, solution_found, optimizer, ub)
+    status == :Optimal && return solution_found ? get_objective_value(optimizer) : ub
+    return min(optimizer.stats[:bcRecBestDb], ub)
+end
+
 # Tentative upper bounds: the root node is first solved without upper bound, giving the root lower bound LB.
 # Then the problem is solved with the cutoffs ceil(LB) + delta1, ceil(LB) + delta1 + delta2,
 # ceil(LB) + delta1 + 2 delta2, ... (never above the upper bound given with -u), until a solution is found.
@@ -81,14 +92,20 @@ function solve_gap_tentative(data::DataGap, app::Dict{String,Any}, instance_name
     status, solution_found, optimizer, x = solve_gap(data, app, instance_name, app["ub"]; root_only=true)
     status == :Optimal && return status, solution_found, optimizer, x # solved (or proved infeasible) at the root
     root_lb = optimizer.stats[:bcRecRootDb]
+    if !(root_lb > -1e11) # the root lower bound was not computed (time limit): no tentative upper bounds
+        println("Tentative upper bounds: the root lower bound is not available; solving with ub = $(app["ub"])")
+        return solve_gap(data, app, instance_name, app["ub"])
+    end
+    best_lb = run_lower_bound(status, solution_found, optimizer, app["ub"])
     k = 0
     while true
         ub = min(ceil(root_lb - 1e-6) + delta1 + k * delta2, app["ub"])
         println("Tentative upper bounds: run $(k + 1) with ub = $ub (root lower bound $root_lb)")
         status, solution_found, optimizer, x = solve_gap(data, app, instance_name, ub)
+        best_lb = max(best_lb, run_lower_bound(status, solution_found, optimizer, ub))
         if solution_found || (status != :Optimal) || (ub >= app["ub"])
             println("Tentative upper bounds: finished after $(k + 1) run(s) with ub = $ub, " *
-                    "total time $(round(time() - t0; digits=2)) s")
+                    "total time $(round(time() - t0; digits=2)) s, valid lower bound $best_lb")
             return status, solution_found, optimizer, x
         end
         println("Tentative upper bounds: no solution with cost below $ub")
@@ -132,6 +149,26 @@ function run_gap(app::Dict{String,Any})
 
     data = readGAPData(app["instance"])
     instance_name = split(basename(app["instance"]), ".")[1]
+
+    if isnothing(app["ub"])
+        app["ub"] = 10000000.0
+        if !app["noheur"]
+            t = @elapsed (heur_m, heur_cost) = gap_heuristic(data)
+            if isnothing(heur_m)
+                println("Heuristic: no feasible assignment found")
+            else
+                # checks the heuristic solution: capacities and cost
+                for k in machines(data)
+                    sum(w(data, j, k) for j in tasks(data) if heur_m[j] == k; init=0.0) <= capacity(data)[k] ||
+                        error("The heuristic solution violates the capacity of machine $k")
+                end
+                heur_cost == sum(c(data, j, heur_m[j]) for j in tasks(data)) || error("Wrong cost of the heuristic solution")
+                # ub = heuristic cost + 1: the solver must return a solution, at least as good as the heuristic one
+                app["ub"] = heur_cost + 1.0
+                println("Heuristic solution of cost $heur_cost ($(round(t; digits=2)) s): ub = $(app["ub"])")
+            end
+        end
+    end
 
     status, solution_found, optimizer, x = if isempty(app["tentative"])
         solve_gap(data, app, instance_name, app["ub"])

@@ -1,4 +1,5 @@
 # Hard Nauss instances (many tasks per machine), currently out of reach of an exact solution in reasonable time.
+mkdir -p out
 julia src/run.jl data/Nauss/gapD-15-150-e0.txt -u 9190 --cfg config/GAP_Nauss.cfg &> out/gapD-15-150-e0.out
 julia src/run.jl data/Nauss/gapD-15-150-e1.txt -u 9567 --cfg config/GAP_Nauss.cfg &> out/gapD-15-150-e1.out
 julia src/run.jl data/Nauss/gapD-15-150-e2.txt -u 9420 --cfg config/GAP_Nauss.cfg &> out/gapD-15-150-e2.out

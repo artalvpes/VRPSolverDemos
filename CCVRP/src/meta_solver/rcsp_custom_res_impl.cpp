@@ -106,4 +106,10 @@ bool isCostResource()
     return true;
 }
 
+CustomResSolution computeSolution(const CustomResParameters &Rcc, const std::vector<int> &arcIds,
+                                  const ForwardState &fwd, const BackwardState &bwd, double originalCost)
+{
+    return CustomResSolution();
+}
+
 } // namespace rcsp_custom_res

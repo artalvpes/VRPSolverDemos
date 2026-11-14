@@ -114,6 +114,11 @@ double concatenationCost(const CustomResParameters &Rcc, int v, const ForwardSta
 
 bool isCostResource();
 
+/// Custom data of a path recorded as a solution (required by the current RCSP interface); the cumulative resource has
+/// none, so the solution is empty
+CustomResSolution computeSolution(const CustomResParameters &Rcc, const std::vector<int> &arcIds,
+                                  const ForwardState &fwd, const BackwardState &bwd, double originalCost);
+
 } // namespace rcsp_custom_res
 
 #endif // RCSP_CUSTOM_RES_IMPL_H_

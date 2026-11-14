@@ -13,9 +13,9 @@ data/Nauss/gapD-25-90-e6.txt -u 5658 --cfg config/GAP_Nauss.cfg
 data/Nauss/gapD-25-90-e7.txt -u 5615 --cfg config/GAP_Nauss.cfg
 data/Nauss/gapD-25-90-e8.txt -u 5575 --cfg config/GAP_Nauss.cfg
 data/Nauss/gapD-25-90-e9.txt -u 5661 --cfg config/GAP_Nauss.cfg
-data/Nauss/gapD-25-100-e0.txt -u 6350 --cfg config/GAP_Nauss.cfg
+# data/Nauss/gapD-25-100-e0.txt -u 6350 --cfg config/GAP_Nauss.cfg   (not solved in 10 minutes, November 2026; solved in 30 minutes, see NAUSS_BENCHMARK.md)
 data/Nauss/gapD-25-100-e1.txt -u 6328 --cfg config/GAP_Nauss.cfg
-data/Nauss/gapD-25-100-e2.txt -u 6304 --cfg config/GAP_Nauss.cfg
+# data/Nauss/gapD-25-100-e2.txt -u 6304 --cfg config/GAP_Nauss.cfg   (not solved in 10 minutes, November 2026; solved in 30 minutes, see NAUSS_BENCHMARK.md)
 data/Nauss/gapD-25-100-e3.txt -u 6284 --cfg config/GAP_Nauss.cfg
 data/Nauss/gapD-25-100-e4.txt -u 6306 --cfg config/GAP_Nauss.cfg
 data/Nauss/gapD-25-100-e5.txt -u 6290 --cfg config/GAP_Nauss.cfg
