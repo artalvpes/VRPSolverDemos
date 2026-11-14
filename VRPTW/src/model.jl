@@ -31,7 +31,12 @@ function build_model(data::DataVRPTW, app)
          if app["enable_cap_res"]
             set_resource_bounds!(G, v, cap_res_id, 0, Q)
          end
-         set_resource_bounds!(G, v, time_res_id, l(data, v), u(data, v))
+         # Tolerance on the end of the time windows: the travel times are distances truncated to one decimal place,
+         # which are not exact in floating point, and their accumulated sums may exceed an integer due time by about
+         # 1e-13, which made the RCSP solver discard feasible routes (optima were lost in some Solomon and Homberger
+         # instances). A true violation is at least 0.1 (times are multiples of 0.1, time windows are integer).
+         # See section 3.6.1 of https://galgos.inf.puc-rio.br/cvrplib/uploads/files/vrptw_challenge/instances.pdf
+         set_resource_bounds!(G, v, time_res_id, l(data, v), u(data, v) + 1e-3)
       end
 
       for (i,j) in A
