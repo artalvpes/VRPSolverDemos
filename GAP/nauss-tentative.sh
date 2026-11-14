@@ -1,4 +1,5 @@
 # Nauss instances solved without an initial upper bound, with tentative upper bounds (see nauss-tentative.batch)
+mkdir -p out
 julia src/run.jl data/Nauss/gapD-25-90-e0.txt -t 10 4 --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e0.out
 julia src/run.jl data/Nauss/gapD-25-90-e1.txt -t 10 4 --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e1.out
 julia src/run.jl data/Nauss/gapD-25-90-e2.txt -t 10 4 --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e2.out

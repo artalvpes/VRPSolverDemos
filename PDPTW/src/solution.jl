@@ -47,6 +47,89 @@ function getsolution(data::DataPDPTW, x, objval, optimizer, app)
     return Solution(objval, routes)
 end
 
+# Checks routes against the definition of the PDPTW, computing distances and times from the vertex data (assuming
+# nothing about how the routes were obtained, see Note 6.12 of the book "Optimizing with Column Generation"):
+# every pickup and every delivery is visited exactly once, the pickup and the delivery of a request are in the same
+# route and the pickup comes first; the load is in [0, Q] along each route; leaving the depot at time 0, the service
+# of each vertex starts within its time window (waiting is allowed) and the vehicle returns to the depot before its
+# due time; at most K routes (exactly k if k >= 0); the cost is the total distance, plus the fixed cost per vehicle
+# in the Ropke and Cordeau instances. Throws an error otherwise.
+function checkroutes(data::DataPDPTW, routes, cost::Real, app::Dict{String,Any}; k::Int=-1)
+    V, Q, nv, tol = data.G′.V′, veh_capacity(data), 2 * n(data), 1e-6
+    dist(i, j) = distance(V[i+1], V[j+1], app["round"])
+    route_of, pos = zeros(Int, nv), zeros(Int, nv)
+    total = 0.0
+    for (kr, r) in enumerate(routes)
+        isempty(r) && error("Route #$kr is empty")
+        load, time, prev = 0.0, 0.0, 0
+        for (p, j) in enumerate(r)
+            (1 <= j <= nv) || error("Route #$kr visits $j, which is not a pickup or a delivery")
+            (route_of[j] != 0) && error("Vertex $j is visited more than once")
+            route_of[j], pos[j] = kr, p
+            load += V[j+1].demand
+            (load < -tol || load > Q + tol) && error("Route #$kr has load $load after vertex $j, not in [0, $Q]")
+            time = max(time + (prev == 0 ? 0 : V[prev+1].service_time) + dist(prev, j), V[j+1].start_tw)
+            (time > V[j+1].end_tw + tol) &&
+                error("Route #$kr starts the service of vertex $j at $time, after its due time $(V[j+1].end_tw)")
+            total += dist(prev, j)
+            prev = j
+        end
+        time += V[prev+1].service_time + dist(prev, 0)
+        (time > V[1].end_tw + tol) && error("Route #$kr returns to the depot at $time, after its due time $(V[1].end_tw)")
+        total += dist(prev, 0)
+    end
+    for req in requests(data)
+        p, dl = req.pickup.id, req.delivery.id
+        (route_of[p] == 0 || route_of[dl] == 0) && error("Request $(req.id) (pickup $p, delivery $dl) is not served")
+        (route_of[p] != route_of[dl]) && error("The pickup $p and the delivery $dl of request $(req.id) are in different routes")
+        (pos[p] > pos[dl]) && error("The delivery $dl of request $(req.id) comes before its pickup $p")
+    end
+    nr = length(routes)
+    (nr > data.K) && error("The solution has $nr routes, more than K = $(data.K)")
+    (k >= 0 && nr != k) && error("The solution has $nr routes, not k = $k")
+    expected = app["lilim"] ? total : app["fixed"] * nr + total
+    (abs(expected - cost) > 1e-6 * max(1, abs(cost))) &&
+        error("Cost calculated from the routes ($expected) is different from the solution cost ($cost)")
+end
+
+# Checks the solution x of the model with value z: x_a binary, in-degree and out-degree 1 at every pickup and
+# delivery, and the objective (computed from the vertex data) equal to z; then the routes are recovered from x,
+# without assuming anything (subtours are detected), and checked with checkroutes. xval maps each arc to x.
+function checksolution_x(data::DataPDPTW, xval::Dict, z::Float64, app::Dict{String,Any}; k::Int=-1)
+    V, nv, tol = data.G′.V′, 2 * n(data), 1e-6
+    for (a, v) in xval
+        (abs(v) > tol && abs(v - 1) > tol) && error("x[$a] = $v is not binary")
+    end
+    used = [a for (a, v) in xval if v > 0.5]
+    succ = Dict{Int,Vector{Int}}()
+    indeg = zeros(Int, nv)
+    for (i, j) in used
+        push!(get!(succ, i, Int[]), j)
+        j > 0 && (indeg[j] += 1)
+    end
+    for i in 1:nv
+        (indeg[i] != 1) && error("Vertex $i has in-degree $(indeg[i]), not 1")
+        (length(get(succ, i, Int[])) != 1) && error("Vertex $i has out-degree $(length(get(succ, i, Int[]))), not 1")
+    end
+    routes = Vector{Int}[]
+    for first in get(succ, 0, Int[])
+        r, j = Int[], first
+        while j != 0
+            (length(r) > nv) && error("A route starting with vertex $first does not return to the depot")
+            push!(r, j)
+            j = succ[j][1]
+        end
+        push!(routes, r)
+    end
+    reached = Set(vcat(routes...))
+    in_subtours = [i for i in 1:nv if !(i in reached)]
+    isempty(in_subtours) || error("The vertices $in_subtours are in subtours (not reached from the depot)")
+    total = sum(distance(V[i+1], V[j+1], app["round"]) for (i, j) in used; init=0.0)
+    obj = app["lilim"] ? total : app["fixed"] * length(routes) + total
+    (abs(obj - z) > 1e-6 * max(1, abs(z))) && error("Objective calculated from x ($obj) is different from the objective value ($z)")
+    checkroutes(data, routes, z, app; k=k)
+end
+
 function print_routes(solution)
     for (i, r) in enumerate(solution.routes)
         print("Route #$i: ")

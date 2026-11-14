@@ -1,0 +1,7 @@
+# Tip: after a batch execution, call 'grep statistics: out/toy.out -h | cut -c13-' to get the results as rows for a LaTeX table.
+# mkdir -p out && julia src/run.jl -b toy.batch &> out/toy.out
+data/toy/toy1.txt -u 9
+data/toy/toy2.txt
+data/toy/toy3.txt
+data/toy/toy4.txt
+data/toy/toy5.txt

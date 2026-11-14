@@ -1,0 +1,30 @@
+# Tip: after a batch execution, call 'grep statistics: out/wt50-10m.out -h | cut -c13-' to get results.
+# julia src/run.jl -b wt50-10m.batch &> out/wt50-10m.out
+# Upper bounds are optimal costs + 1 (optima found by this demo, November 2026). wt50-10m-76 has optimum 0.
+# Exceptions: wt50-10m-31 and wt50-10m-106 are open (not solved within 1800 s; best bounds 1891 and 828). Their upper
+# bounds are the best known solution costs + 1 (1905 and 840), and they may take much longer than the others.
+# instances/WT50-10m/wt50-10m-1.txt -u 560   (not solved in 10 minutes, November 2026; lower bound 559)
+instances/WT50-10m/wt50-10m-6.txt -u 4783
+instances/WT50-10m/wt50-10m-11.txt -u 7083
+instances/WT50-10m/wt50-10m-16.txt -u 13762
+instances/WT50-10m/wt50-10m-21.txt -u 28667
+instances/WT50-10m/wt50-10m-26.txt -u 201
+# instances/WT50-10m/wt50-10m-31.txt -u 1906   (not solved in 10 minutes, November 2026; lower bound 1890)
+instances/WT50-10m/wt50-10m-36.txt -u 7153
+instances/WT50-10m/wt50-10m-41.txt -u 12422
+instances/WT50-10m/wt50-10m-46.txt -u 22155
+instances/WT50-10m/wt50-10m-51.txt -u 53
+# instances/WT50-10m/wt50-10m-56.txt -u 522   (not solved in 10 minutes, November 2026; lower bound 520)
+instances/WT50-10m/wt50-10m-61.txt -u 5320
+instances/WT50-10m/wt50-10m-66.txt -u 12896
+instances/WT50-10m/wt50-10m-71.txt -u 21299
+instances/WT50-10m/wt50-10m-76.txt -u 1
+instances/WT50-10m/wt50-10m-81.txt -u 931
+instances/WT50-10m/wt50-10m-86.txt -u 6691
+instances/WT50-10m/wt50-10m-91.txt -u 14484
+instances/WT50-10m/wt50-10m-96.txt -u 25101
+instances/WT50-10m/wt50-10m-101.txt -u 71
+# instances/WT50-10m/wt50-10m-106.txt -u 841   (not solved in 10 minutes, November 2026; lower bound 828)
+instances/WT50-10m/wt50-10m-111.txt -u 7532
+instances/WT50-10m/wt50-10m-116.txt -u 7016
+instances/WT50-10m/wt50-10m-121.txt -u 13342

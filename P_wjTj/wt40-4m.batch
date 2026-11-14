@@ -8,7 +8,7 @@ instances/WT40-4m/wt40-4m-16.txt  -u 21494
 instances/WT40-4m/wt40-4m-21.txt  -u 22794
 instances/WT40-4m/wt40-4m-26.txt  -u 89
 instances/WT40-4m/wt40-4m-31.txt  -u 2526
-instances/WT40-4m/wt40-4m-36.txt  -u 6421
+# instances/WT40-4m/wt40-4m-36.txt  -u 6421   (not solved in 10 minutes, November 2026; lower bound 6371)
 instances/WT40-4m/wt40-4m-41.txt  -u 17686
 instances/WT40-4m/wt40-4m-46.txt  -u 19125
 instances/WT40-4m/wt40-4m-51.txt  -u 1

@@ -1,3 +1,6 @@
+# Same instances and upper bounds as nauss.batch, one Julia process per instance (run from the GAP folder);
+# the instances commented out in the batch are commented out here.
+mkdir -p out
 julia src/run.jl data/Nauss/gapD-25-90-e0.txt -u 5682 --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e0.out
 julia src/run.jl data/Nauss/gapD-25-90-e1.txt -u 5628 --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e1.out
 julia src/run.jl data/Nauss/gapD-25-90-e2.txt -u 5677 --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e2.out
@@ -8,9 +11,9 @@ julia src/run.jl data/Nauss/gapD-25-90-e6.txt -u 5658 --cfg config/GAP_Nauss.cfg
 julia src/run.jl data/Nauss/gapD-25-90-e7.txt -u 5615 --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e7.out
 julia src/run.jl data/Nauss/gapD-25-90-e8.txt -u 5575 --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e8.out
 julia src/run.jl data/Nauss/gapD-25-90-e9.txt -u 5661 --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e9.out
-julia src/run.jl data/Nauss/gapD-25-100-e0.txt -u 6350 --cfg config/GAP_Nauss.cfg &> out/gapD-25-100-e0.out
+# julia src/run.jl data/Nauss/gapD-25-100-e0.txt -u 6350 --cfg config/GAP_Nauss.cfg &> out/gapD-25-100-e0.out   (not solved in 10 minutes, November 2026; solved in 30 minutes, see NAUSS_BENCHMARK.md)
 julia src/run.jl data/Nauss/gapD-25-100-e1.txt -u 6328 --cfg config/GAP_Nauss.cfg &> out/gapD-25-100-e1.out
-julia src/run.jl data/Nauss/gapD-25-100-e2.txt -u 6304 --cfg config/GAP_Nauss.cfg &> out/gapD-25-100-e2.out
+# julia src/run.jl data/Nauss/gapD-25-100-e2.txt -u 6304 --cfg config/GAP_Nauss.cfg &> out/gapD-25-100-e2.out   (not solved in 10 minutes, November 2026; solved in 30 minutes, see NAUSS_BENCHMARK.md)
 julia src/run.jl data/Nauss/gapD-25-100-e3.txt -u 6284 --cfg config/GAP_Nauss.cfg &> out/gapD-25-100-e3.out
 julia src/run.jl data/Nauss/gapD-25-100-e4.txt -u 6306 --cfg config/GAP_Nauss.cfg &> out/gapD-25-100-e4.out
 julia src/run.jl data/Nauss/gapD-25-100-e5.txt -u 6290 --cfg config/GAP_Nauss.cfg &> out/gapD-25-100-e5.out

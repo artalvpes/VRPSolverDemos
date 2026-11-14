@@ -1,0 +1,30 @@
+# Zero-cost bins: K = 5 stock types of lengths 6000,7000,8000,9000,10000, 1 bins of each, cost 0
+# 20 items with lengths uniform in [1000, 5000] (seed 1), penalty = length +- uniform 20% of the length (seed 2)
+# generated with Python's random module (not the generator of vc_K5_n100_u11_s1 and zc_K5_n100_u4_s1)
+# J K / J lines: w_j p_j / K lines: W_k u_k c_k
+20 5
+1550 1833
+3331 3928
+4471 3678
+4286 3574
+4128 4682
+1258 1377
+2044 2183
+1482 1368
+3029 3157
+4116 4292
+2841 2933
+2934 2533
+3668 3566
+2554 2445
+4230 4607
+1859 2227
+1384 1633
+2998 3051
+1116 1091
+4659 4227
+6000 1 0
+7000 1 0
+8000 1 0
+9000 1 0
+10000 1 0

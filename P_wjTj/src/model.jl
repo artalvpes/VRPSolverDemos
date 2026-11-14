@@ -143,8 +143,13 @@ function build_model(data::DataPwjTj, app::Dict{String,Any})
         sum(x[a] for a in arcs_per_pair[ij[1]+1, ij[2]+1]))
     GC.enable(true)
 
-    set_branching_priority!(model, y, "y", 2)
-    set_branching_priority!(model, x, "x", 1)
+    # Branching on y only. If every y is integral, every x is integral: each job then has a single predecessor and a
+    # single successor with y = 1 (cover constraints and flow conservation); no cycle avoids the source, as a path
+    # reaches a job of such a cycle through an arc with y > 0 from outside it; so these pairs form m chains, and as
+    # there is no idle time (the first job starts at 0 and each job starts when the previous one ends), every path
+    # used by the master solution is one of the chains, with weight 1. Branching on x is never needed, and its
+    # family (one branching expression per arc) would cost about 1.8 KB of memory per arc.
+    set_branching_priority!(model, y, "y", 1)
 
     add_ecc_cuts!(model, data, x, A, node_ids, app["ub"])
 

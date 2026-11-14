@@ -1,4 +1,5 @@
 # Nauss instances solved without an initial upper bound, with the diving heuristic (see nauss-diving.batch)
+mkdir -p out
 julia src/run.jl data/Nauss/gapD-25-90-e0.txt -d --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e0.out
 julia src/run.jl data/Nauss/gapD-25-90-e1.txt -d --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e1.out
 julia src/run.jl data/Nauss/gapD-25-90-e2.txt -d --cfg config/GAP_Nauss.cfg &> out/gapD-25-90-e2.out
