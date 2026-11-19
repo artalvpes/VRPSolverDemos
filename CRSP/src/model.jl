@@ -23,8 +23,10 @@ function build_model(data::DataCRSP, app::Dict{String,Any})
     crsp = VrpModel()
     @variable(crsp.formulation, x[e in E], Int)
     @variable(crsp.formulation, z[(i, j) in Z], Int)
-    # one variable per star arc (only used by the strengthened capacity cuts, which are dynamic)
-    @variable(crsp.formulation, w[k in w_keys(stars)])
+    # one variable per star arc (only used by the strengthened capacity cuts, which are dynamic). It must be
+    # declared integer: with a continuous w, its values given to the cut callback were always zero, so the separation
+    # found cuts that were not violated in the master.
+    @variable(crsp.formulation, w[k in w_keys(stars)], Int)
     @objective(crsp.formulation, Min,
         sum(c(data, e) * x[e] for e in E) + sum(b(data, i, j) * z[(i, j)] for (i, j) in Z))
     # (6.37b) every terminal is either on a ring or connected through a star to a single ring point
@@ -103,11 +105,17 @@ function build_model(data::DataCRSP, app::Dict{String,Any})
     define_elementarity_sets_distance_matrix!(crsp, G, [[distance(data, (i, j)) for j in es_points] for i in es_points])
 
     if !app["no_capacity_cuts"]
+        # cuts already added are not added again (a safeguard: when w was continuous, its values in the callback were
+        # zero, the same non-violated cuts were found again and again, and BaPCod stopped after 100 rounds with
+        # "MaxNb Of core cut generation is exceeded")
+        added = Set{Tuple{Vector{Tuple{Int,Int}},Vector{Tuple{Int,Int}},Float64}}()
         function rcc_callback()
             xbar = Dict(e => value(x[e]) for e in E)
             wbar = Dict(k => value(w[k]) for k in w_keys(stars))
             cuts = separate_rcc(data, stars, xbar, wbar)
+            filter!(cut -> !((sort(cut.edges), sort(cut.stars), Float64(cut.rhs)) in added), cuts)
             for cut in cuts
+                push!(added, (sort(cut.edges), sort(cut.stars), Float64(cut.rhs)))
                 add_dynamic_constr!(crsp.optimizer,
                     vcat([x[e] for e in cut.edges], [w[k] for k in cut.stars]),
                     vcat(ones(length(cut.edges)), fill(2.0, length(cut.stars))), >=, cut.rhs, "rcc")
@@ -117,8 +125,11 @@ function build_model(data::DataCRSP, app::Dict{String,Any})
         add_cut_callback!(crsp, rcc_callback, "rcc")
     end
 
-    set_branching_priority!(crsp, "x", 2)
-    set_branching_priority!(crsp, "z", 1)
+    # branching on x first, then on z; w only as a last resort (with x and z integer, the stars of a point may still be
+    # a fractional combination)
+    set_branching_priority!(crsp, "x", 3)
+    set_branching_priority!(crsp, "z", 2)
+    set_branching_priority!(crsp, "w", 1)
 
     return (crsp, x, z)
 end
