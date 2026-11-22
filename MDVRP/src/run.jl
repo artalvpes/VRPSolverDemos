@@ -23,7 +23,6 @@ cd(base_dir)
 
 # Load the VrpSolver and GenericILS packages. GenericILS computes the upper bound given to the VRPSolver; it reads the
 # model and compiles the same C++ files (src/meta_solver) with the C++ compiler of the system (CXX, g++, clang++ or c++).
-# Set GENERICILS_PATH to use a local copy of GenericILS (and GENERICILS_REV to use another branch).
 using Pkg
 Pkg.activate(joinpath(@__DIR__, ".."))
 update = !isnothing(findfirst(isequal("--update"), ARGS))
@@ -32,11 +31,7 @@ if !haskey(Pkg.project().dependencies, "VrpSolver") || update
     Pkg.instantiate()
 end
 if !haskey(Pkg.project().dependencies, "GenericILS") || update
-    if haskey(ENV, "GENERICILS_PATH")
-        Pkg.develop(path=ENV["GENERICILS_PATH"])
-    else
-        Pkg.add(url="https://github.com/brunomattos1/GenericILS", rev=get(ENV, "GENERICILS_REV", "feature/cpp-integration"))
-    end
+    Pkg.add(url="https://github.com/brunomattos1/GenericILS", rev="main")
     Pkg.instantiate()
 end
 
