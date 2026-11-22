@@ -1,0 +1,19 @@
+# All instances of the set MG
+julia src/run.jl data/MG/C1_2_1 &> out/C1_2_1.out
+julia src/run.jl data/MG/C1_4_1 &> out/C1_4_1.out
+julia src/run.jl data/MG/C2_2_1 &> out/C2_2_1.out
+julia src/run.jl data/MG/C2_4_1 &> out/C2_4_1.out
+julia src/run.jl data/MG/R1_2_1 &> out/R1_2_1.out
+julia src/run.jl data/MG/R1_4_1 &> out/R1_4_1.out
+julia src/run.jl data/MG/R2_2_1 &> out/R2_2_1.out
+julia src/run.jl data/MG/R2_4_1 &> out/R2_4_1.out
+julia src/run.jl data/MG/RC1_2_1 &> out/RC1_2_1.out
+julia src/run.jl data/MG/RC1_4_1 &> out/RC1_4_1.out
+julia src/run.jl data/MG/RC2_2_1 &> out/RC2_2_1.out
+julia src/run.jl data/MG/RC2_4_1 &> out/RC2_4_1.out
+julia src/run.jl data/MG/c101 &> out/c101.out
+julia src/run.jl data/MG/c201 &> out/c201.out
+julia src/run.jl data/MG/r101 &> out/r101.out
+julia src/run.jl data/MG/r201 &> out/r201.out
+julia src/run.jl data/MG/rc101 &> out/rc101.out
+julia src/run.jl data/MG/rc201 &> out/rc201.out
