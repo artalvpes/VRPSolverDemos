@@ -1,0 +1,15 @@
+name = "MDVRPSolverDemo"
+uuid = "6f870b9f-6b36-4c9d-9562-3fa539244d51"
+authors = ["Bruno <bruno_mattos@id.uff.br>"]
+version = "0.1.0"
+
+[deps]
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+
+[compat]
+ArgParse = "1.2.0"
+JuMP = "1.23.2"

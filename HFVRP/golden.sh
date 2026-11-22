@@ -1,0 +1,25 @@
+# All instances of Golden et al. (classic format)
+julia src/run.jl data/c50_13fsmd.txt &> out/c50_13fsmd.out
+julia src/run.jl data/c50_13fsmf.txt &> out/c50_13fsmf.out
+julia src/run.jl data/c50_13fsmfd.txt &> out/c50_13fsmfd.out
+julia src/run.jl data/c50_14fsmd.txt &> out/c50_14fsmd.out
+julia src/run.jl data/c50_14fsmf.txt &> out/c50_14fsmf.out
+julia src/run.jl data/c50_14fsmfd.txt &> out/c50_14fsmfd.out
+julia src/run.jl data/c50_15fsmd.txt &> out/c50_15fsmd.out
+julia src/run.jl data/c50_15fsmf.txt &> out/c50_15fsmf.out
+julia src/run.jl data/c50_15fsmfd.txt &> out/c50_15fsmfd.out
+julia src/run.jl data/c50_16fsmd.txt &> out/c50_16fsmd.out
+julia src/run.jl data/c50_16fsmf.txt &> out/c50_16fsmf.out
+julia src/run.jl data/c50_16fsmfd.txt &> out/c50_16fsmfd.out
+julia src/run.jl data/c75_17fsmd.txt &> out/c75_17fsmd.out
+julia src/run.jl data/c75_17fsmf.txt &> out/c75_17fsmf.out
+julia src/run.jl data/c75_17fsmfd.txt &> out/c75_17fsmfd.out
+julia src/run.jl data/c75_18fsmd.txt &> out/c75_18fsmd.out
+julia src/run.jl data/c75_18fsmf.txt &> out/c75_18fsmf.out
+julia src/run.jl data/c75_18fsmfd.txt &> out/c75_18fsmfd.out
+julia src/run.jl data/c100_19fsmd.txt &> out/c100_19fsmd.out
+julia src/run.jl data/c100_19fsmf.txt &> out/c100_19fsmf.out
+julia src/run.jl data/c100_19fsmfd.txt &> out/c100_19fsmfd.out
+julia src/run.jl data/c100_20fsmd.txt &> out/c100_20fsmd.out
+julia src/run.jl data/c100_20fsmf.txt &> out/c100_20fsmf.out
+julia src/run.jl data/c100_20fsmfd.txt &> out/c100_20fsmfd.out
