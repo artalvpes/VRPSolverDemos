@@ -23,9 +23,6 @@ namespace rcsp_custom_res
 namespace
 {
 const double INF = 1e12;
-// Set to false to turn off the dominance of the states (no state dominates another one): the pricing is slower, and
-// the optimal values must not change. It helps to check a change of this file.
-const bool USE_DOMINATION = true;
 
 double euclid(const CustomResParameters &Rcc, double x1, double y1, double x2, double y2)
 {
@@ -175,8 +172,6 @@ double extendAlongArc(const CustomResParameters &Rcc, BackwardState &state, int 
 double dominationCost(const CustomResParameters &Rcc, int v, const ForwardState &dominating,
                       const ForwardState &dominated)
 {
-    if (!USE_DOMINATION)
-        return INF;
     if (dominating.closed != dominated.closed)
         return INF;
     double diff = dominating.S - dominated.S;
@@ -190,8 +185,6 @@ double dominationCost(const CustomResParameters &Rcc, int v, const ForwardState 
 double dominationCost(const CustomResParameters &Rcc, int v, const BackwardState &dominating,
                       const BackwardState &dominated)
 {
-    if (!USE_DOMINATION)
-        return INF;
     if (dominating.closed != dominated.closed)
         return INF;
     double diff = dominating.S - dominated.S;

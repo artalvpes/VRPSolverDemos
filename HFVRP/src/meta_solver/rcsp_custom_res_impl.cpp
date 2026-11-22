@@ -21,9 +21,6 @@ namespace rcsp_custom_res
 namespace
 {
 const double INF = 1e12;
-// Set to false to turn off the dominance of the states (no state dominates another one): the pricing is slower, and
-// the optimal values must not change. It helps to check a change of this file.
-const bool USE_DOMINATION = true;
 const double TOL = 1e-4;  // tolerance of the capacity
 const double EPS = 1e-9;  // tolerance of the comparison of states
 
@@ -123,8 +120,6 @@ double extendAlongArc(const CustomResParameters &Rcc, BackwardState &state, int 
 double dominationCost(const CustomResParameters &Rcc, int v, const ForwardState &dominating,
                       const ForwardState &dominated)
 {
-    if (!USE_DOMINATION)
-        return INF;
     if (dominating.load > dominated.load + EPS)
         return INF;
     return Rcc.maxFactor * std::max(0.0, dominating.dist - dominated.dist);
@@ -133,8 +128,6 @@ double dominationCost(const CustomResParameters &Rcc, int v, const ForwardState 
 double dominationCost(const CustomResParameters &Rcc, int v, const BackwardState &dominating,
                       const BackwardState &dominated)
 {
-    if (!USE_DOMINATION)
-        return INF;
     if (dominating.load > dominated.load + EPS)
         return INF;
     return Rcc.maxFactor * std::max(0.0, dominating.dist - dominated.dist);
