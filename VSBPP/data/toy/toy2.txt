@@ -1,0 +1,12 @@
+# 6 items, 3 stock types, one stock of each type (some item must be left out)
+# J K / J lines: w_j p_j / K lines: W_k u_k c_k
+6 3
+7 9
+6 8
+5 4
+4 6
+3 2
+2 3
+10 1 8
+12 1 9
+15 1 12

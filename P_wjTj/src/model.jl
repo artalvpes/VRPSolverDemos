@@ -69,7 +69,15 @@ function build_model(data::DataPwjTj, app::Dict{String,Any})
     psum = sum(j.p for j in jobs)
     pmax = maximum(j.p for j in jobs)
     for ((j, t_j), nid_j) in node_ids
-        if t_j >= div(psum - pmax, m) && t_j <= div(psum - jobs[j].p, m) + jobs[j].p
+        # Completion window of the last job j of a machine. Some optimal solution without idle times satisfies:
+        # (a) no arc removed by Proposition 2 is used, and (b) C_A >= S_B for all machines A != B, where C_A is the
+        # completion time of A and S_B the start of the last job of B. (Take the optimal solution that minimizes
+        # (sum_j C_j, sum_j -j * C_j) lexicographically: moving the last job of B to the end of A if C_A < S_B, or
+        # swapping i -> j if Proposition 2 removes that arc, would give an optimal solution with a smaller value.)
+        # By (b), psum >= m * S_B + p_b gives the upper limit; with Cmin the smallest completion time,
+        # psum <= m * Cmin + (m - 1) * pmax gives the lower limit. The lower limit div(psum - pmax, m) used before
+        # is valid only for m = 2 and cut all the optimal solutions of some wt40-4m instances.
+        if t_j >= cld(psum - (m - 1) * pmax, m) && t_j <= div(psum - jobs[j].p, m) + jobs[j].p
             add_arc_data!(nid_j, src_snk)
         end
     end
@@ -135,8 +143,13 @@ function build_model(data::DataPwjTj, app::Dict{String,Any})
         sum(x[a] for a in arcs_per_pair[ij[1]+1, ij[2]+1]))
     GC.enable(true)
 
-    set_branching_priority!(model, y, "y", 2)
-    set_branching_priority!(model, x, "x", 1)
+    # Branching on y only. If every y is integral, every x is integral: each job then has a single predecessor and a
+    # single successor with y = 1 (cover constraints and flow conservation); no cycle avoids the source, as a path
+    # reaches a job of such a cycle through an arc with y > 0 from outside it; so these pairs form m chains, and as
+    # there is no idle time (the first job starts at 0 and each job starts when the previous one ends), every path
+    # used by the master solution is one of the chains, with weight 1. Branching on x is never needed, and its
+    # family (one branching expression per arc) would cost about 1.8 KB of memory per arc.
+    set_branching_priority!(model, y, "y", 1)
 
     add_ecc_cuts!(model, data, x, A, node_ids, app["ub"])
 

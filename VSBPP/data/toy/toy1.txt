@@ -1,0 +1,11 @@
+# Example of the slides (optimum 8: items 1 and 3 in a stock of type 2, item 2 not produced)
+# J K
+# then J lines: w_j p_j   (length and penalty of item j)
+# then K lines: W_k u_k c_k   (length, availability and cost of stock type k)
+3 3
+5 6
+4 3
+3 5
+6 1 4
+8 1 5
+12 1 9

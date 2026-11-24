@@ -1,62 +1,65 @@
+# Team orienteering problem, Chao instances. The objective is minus the total profit.
 # Tip: after a batch execution, call 'grep statistics: out/chao.out -h | cut -c13-' to get the results as rows for a LaTeX table.
 # julia src/run.jl -b chao.batch &> out/chao.out
-data/p4.2.a.txt --cfg config/TOP.cfg
-data/p4.2.b.txt --cfg config/TOP.cfg
-data/p4.2.c.txt --cfg config/TOP.cfg
-data/p4.2.d.txt --cfg config/TOP.cfg
-data/p4.2.e.txt --cfg config/TOP.cfg
-data/p4.2.f.txt --cfg config/TOP.cfg
-data/p4.2.g.txt --cfg config/TOP.cfg
-data/p4.2.h.txt --cfg config/TOP.cfg
-data/p4.2.i.txt --cfg config/TOP.cfg
-data/p4.2.j.txt --cfg config/TOP.cfg
-data/p4.2.k.txt --cfg config/TOP.cfg
-data/p4.2.l.txt --cfg config/TOP.cfg
-data/p4.2.m.txt --cfg config/TOP.cfg
-data/p4.2.n.txt --cfg config/TOP.cfg
-data/p4.2.o.txt --cfg config/TOP.cfg
-data/p4.2.p.txt --cfg config/TOP.cfg
-data/p4.2.q.txt --cfg config/TOP.cfg
-data/p4.2.r.txt --cfg config/TOP.cfg
-data/p4.2.s.txt --cfg config/TOP.cfg
-data/p4.2.t.txt --cfg config/TOP.cfg
-data/p4.3.a.txt --cfg config/TOP.cfg
-data/p4.3.b.txt --cfg config/TOP.cfg
-data/p4.3.c.txt --cfg config/TOP.cfg
-data/p4.3.d.txt --cfg config/TOP.cfg
-data/p4.3.e.txt --cfg config/TOP.cfg
-data/p4.3.f.txt --cfg config/TOP.cfg
-data/p4.3.g.txt --cfg config/TOP.cfg
-data/p4.3.h.txt --cfg config/TOP.cfg
-data/p4.3.i.txt --cfg config/TOP.cfg
-data/p4.3.j.txt --cfg config/TOP.cfg
-data/p4.3.k.txt --cfg config/TOP.cfg
-data/p4.3.l.txt --cfg config/TOP.cfg
-data/p4.3.m.txt --cfg config/TOP.cfg
-data/p4.3.n.txt --cfg config/TOP.cfg
-data/p4.3.o.txt --cfg config/TOP.cfg
-data/p4.3.p.txt --cfg config/TOP.cfg
-data/p4.3.q.txt --cfg config/TOP.cfg
-data/p4.3.r.txt --cfg config/TOP.cfg
-data/p4.3.s.txt --cfg config/TOP.cfg
-data/p4.3.t.txt --cfg config/TOP.cfg
-data/p4.4.a.txt --cfg config/TOP.cfg
-data/p4.4.b.txt --cfg config/TOP.cfg
-data/p4.4.c.txt --cfg config/TOP.cfg
-data/p4.4.d.txt --cfg config/TOP.cfg
-data/p4.4.e.txt --cfg config/TOP.cfg
-data/p4.4.f.txt --cfg config/TOP.cfg
-data/p4.4.g.txt --cfg config/TOP.cfg
-data/p4.4.h.txt --cfg config/TOP.cfg
-data/p4.4.i.txt --cfg config/TOP.cfg
-data/p4.4.j.txt --cfg config/TOP.cfg
-data/p4.4.k.txt --cfg config/TOP.cfg
-data/p4.4.l.txt --cfg config/TOP.cfg
-data/p4.4.m.txt --cfg config/TOP.cfg
-data/p4.4.n.txt --cfg config/TOP.cfg
-data/p4.4.o.txt --cfg config/TOP.cfg
-data/p4.4.p.txt --cfg config/TOP.cfg
-data/p4.4.q.txt --cfg config/TOP.cfg
-data/p4.4.r.txt --cfg config/TOP.cfg
-data/p4.4.s.txt --cfg config/TOP.cfg
-data/p4.4.t.txt --cfg config/TOP.cfg
+# Upper bounds are optimal costs + 1, i.e. minus the optimal profit + 1 (optima found by this demo, November 2026, in at
+# most 2 minutes each). Instances not solved in 2 minutes are commented out (best bounds after 2 minutes).
+data/p4.2.a.txt --cfg config/TOP.cfg -u -205
+data/p4.2.b.txt --cfg config/TOP.cfg -u -340
+data/p4.2.c.txt --cfg config/TOP.cfg -u -451
+data/p4.2.d.txt --cfg config/TOP.cfg -u -530
+data/p4.2.e.txt --cfg config/TOP.cfg -u -617
+data/p4.2.f.txt --cfg config/TOP.cfg -u -686
+data/p4.2.g.txt --cfg config/TOP.cfg -u -756
+data/p4.2.h.txt --cfg config/TOP.cfg -u -834
+data/p4.2.i.txt --cfg config/TOP.cfg -u -917
+data/p4.2.j.txt --cfg config/TOP.cfg -u -964
+data/p4.2.k.txt --cfg config/TOP.cfg -u -1021
+data/p4.2.l.txt --cfg config/TOP.cfg -u -1073
+data/p4.2.m.txt --cfg config/TOP.cfg -u -1131
+# data/p4.2.n.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -1179.00, best -1168)
+# data/p4.2.o.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -1219.00, best -1216)
+# data/p4.2.p.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -1252.00, best 0)
+# data/p4.2.q.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -1278.00, best 0)
+# data/p4.2.r.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -1296.00, best 0)
+# data/p4.2.s.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -1305.00, best 0)
+# data/p4.2.t.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -1306.00, best -618)
+data/p4.3.a.txt --cfg config/TOP.cfg -u 1
+data/p4.3.b.txt --cfg config/TOP.cfg -u -37
+data/p4.3.c.txt --cfg config/TOP.cfg -u -192
+data/p4.3.d.txt --cfg config/TOP.cfg -u -334
+data/p4.3.e.txt --cfg config/TOP.cfg -u -467
+data/p4.3.f.txt --cfg config/TOP.cfg -u -578
+data/p4.3.g.txt --cfg config/TOP.cfg -u -652
+data/p4.3.h.txt --cfg config/TOP.cfg -u -728
+data/p4.3.i.txt --cfg config/TOP.cfg -u -808
+data/p4.3.j.txt --cfg config/TOP.cfg -u -860
+data/p4.3.k.txt --cfg config/TOP.cfg -u -918
+data/p4.3.l.txt --cfg config/TOP.cfg -u -978
+data/p4.3.m.txt --cfg config/TOP.cfg -u -1062
+data/p4.3.n.txt --cfg config/TOP.cfg -u -1120
+data/p4.3.o.txt --cfg config/TOP.cfg -u -1171
+data/p4.3.p.txt --cfg config/TOP.cfg -u -1221
+data/p4.3.q.txt --cfg config/TOP.cfg -u -1252
+# data/p4.3.r.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -1279.00, best -1266)
+# data/p4.3.s.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -1297.00, best -1274)
+# data/p4.3.t.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -1306.00, best -584)
+data/p4.4.a.txt --cfg config/TOP.cfg -u 1
+data/p4.4.b.txt --cfg config/TOP.cfg -u 1
+data/p4.4.c.txt --cfg config/TOP.cfg -u 1
+data/p4.4.d.txt --cfg config/TOP.cfg -u -37
+data/p4.4.e.txt --cfg config/TOP.cfg -u -182
+data/p4.4.f.txt --cfg config/TOP.cfg -u -323
+data/p4.4.g.txt --cfg config/TOP.cfg -u -460
+data/p4.4.h.txt --cfg config/TOP.cfg -u -570
+data/p4.4.i.txt --cfg config/TOP.cfg -u -656
+data/p4.4.j.txt --cfg config/TOP.cfg -u -731
+data/p4.4.k.txt --cfg config/TOP.cfg -u -820
+data/p4.4.l.txt --cfg config/TOP.cfg -u -879
+# data/p4.4.m.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -923.00, best -905)
+# data/p4.4.n.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -979.00, best -969)
+data/p4.4.o.txt --cfg config/TOP.cfg -u -1060
+data/p4.4.p.txt --cfg config/TOP.cfg -u -1123
+data/p4.4.q.txt --cfg config/TOP.cfg -u -1160
+data/p4.4.r.txt --cfg config/TOP.cfg -u -1215
+# data/p4.4.s.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -1264.00, best -1254)
+# data/p4.4.t.txt --cfg config/TOP.cfg   (not solved in 2 minutes: lower bound -1291.00, best -1277)

@@ -6,6 +6,7 @@ include("data.jl")
 include("branching.jl")
 include("model.jl")
 include("solution.jl")
+include("heuristic.jl")
 
 function parse_commandline(args_array::Vector{String}, appfolder::String)
     s = ArgParseSettings(
@@ -18,9 +19,17 @@ function parse_commandline(args_array::Vector{String}, appfolder::String)
         help = "Configuration file path"
         default = "$appfolder/../config/CVRP.cfg"
         "--ub", "-u"
-        help = "Upper bound (primal bound)"
+        help = "Upper bound (primal bound). If not given, the heuristic of heuristic.jl gives it (cost + 1)."
         arg_type = Float64
-        default = 10000000.0
+        "--noheur"
+        help = "Without --ub, do not run the heuristic (no upper bound)"
+        action = :store_true
+        "--tentative", "-T"
+        help = "Tentative upper bounds DELTA1 DELTA2: solve the root with the upper bound to get its lower bound LB, " *
+               "then solve with the upper bounds LB + DELTA1, LB + DELTA1 + DELTA2, LB + DELTA1 + 2 DELTA2, ... " *
+               "(never above the upper bound) until a solution is found"
+        nargs = 2
+        arg_type = Float64
         "--minr", "-m"
         help = "Minimum number of routes in the solution"
         arg_type = Int
@@ -68,6 +77,80 @@ function parse_commandline(args_array::Vector{String}, appfolder::String)
     return parse_args(args_array, s)
 end
 
+# Only the root node is solved (first step of the tentative upper bounds)
+const ROOT_ONLY_PARAMS = ["MaxNbOfBBtreeNodeTreated = 1"]
+
+# Returns the path of a temporary copy of the configuration file with the given parameters (the lines of the original
+# file that set them are removed, since BaPCod does not accept a parameter twice)
+function cfg_with_params(cfg::String, params::Vector{String})
+    names = [first(split(p)) for p in params]
+    lines = filter(l -> !any(n -> occursin(Regex("^\\s*$n\\b"), l), names), readlines(cfg))
+    path = tempname() * ".cfg"
+    write(path, join(vcat(lines, params), "\n") * "\n")
+    return path
+end
+
+# Solves the model once with the cutoff ub. Returns the status, whether a solution was found, the optimizer and x.
+function solve_cvrp(data::DataCVRP, app::Dict{String,Any}, instance_name, ub::Float64; root_only::Bool=false)
+    (model, x) = build_model(data, app)
+    if app["show_complete_form"] && !root_only
+        enum_paths, complete_form = get_complete_formulation(model, app["cfg"])
+        set_optimizer(complete_form, HiGHS.Optimizer) # set MIP solver
+        print_enum_paths(enum_paths)
+        println(complete_form)
+        optimize!(complete_form)
+    end
+    cfg = root_only ? cfg_with_params(app["cfg"], ROOT_ONLY_PARAMS) : app["cfg"]
+    optimizer = VrpOptimizer(model, cfg, instance_name)
+    root_only && rm(cfg) # the parameters are read when the optimizer is created
+    set_cutoff!(optimizer, ub)
+    (status, solution_found) = optimize!(optimizer)
+    return status, solution_found, optimizer, x
+end
+
+# Valid lower bound on the optimal cost after a run with the cutoff ub: if the run ends with the status Optimal, its
+# solution is optimal, or there is no solution of cost below ub; otherwise (time limit), the global dual bound of the
+# run is valid for the solutions of cost below ub, and it is at most ub.
+function run_lower_bound(status, solution_found, optimizer, ub)
+    status == :Optimal && return solution_found ? get_objective_value(optimizer) : ub
+    return min(optimizer.stats[:bcRecBestDb], ub)
+end
+
+# Tentative upper bounds (as in the GAP demo): the root node is first solved with the upper bound ub, giving the root
+# lower bound LB. Then the problem is solved with the cutoffs LB + delta1, LB + delta1 + delta2, LB + delta1 + 2 delta2,
+# ... (LB rounded up when the costs are integer; never above ub), until a solution is found. A run that ends without a
+# solution but with the status Optimal proves that there is no solution of cost below its cutoff.
+function solve_cvrp_tentative(data::DataCVRP, app::Dict{String,Any}, instance_name, ub_max::Float64)
+    delta1, delta2 = app["tentative"]
+    delta2 > 0 || error("the second value of --tentative (delta2) must be positive")
+    t0 = time()
+    println("Tentative upper bounds: solving the root node with ub = $ub_max")
+    res = solve_cvrp(data, app, instance_name, ub_max; root_only=true)
+    res[1] == :Optimal && return res # solved (or proved infeasible) at the root
+    root_lb = res[3].stats[:bcRecRootDb]
+    if !(root_lb > -1e11) # the root lower bound was not computed (time limit): no tentative upper bounds
+        println("Tentative upper bounds: the root lower bound is not available; solving with ub = $ub_max")
+        return solve_cvrp(data, app, instance_name, ub_max)
+    end
+    base = app["noround"] ? root_lb : ceil(root_lb - 1e-6)
+    best_lb = run_lower_bound(res[1], res[2], res[3], ub_max)
+    k = 0
+    while true
+        ub = min(base + delta1 + k * delta2, ub_max)
+        println("Tentative upper bounds: run $(k + 1) with ub = $ub (root lower bound $root_lb)")
+        res = solve_cvrp(data, app, instance_name, ub)
+        (status, solution_found) = res
+        best_lb = max(best_lb, run_lower_bound(status, solution_found, res[3], ub))
+        if solution_found || (status != :Optimal) || (ub >= ub_max)
+            println("Tentative upper bounds: finished after $(k + 1) run(s) with ub = $ub, " *
+                    "total time $(round(time() - t0; digits=2)) s, valid lower bound $best_lb")
+            return res
+        end
+        println("Tentative upper bounds: no solution with cost below $ub")
+        k += 1
+    end
+end
+
 function run_cvrp(app::Dict{String,Any})
     println("Application parameters:")
     for (arg, val) in app
@@ -80,26 +163,37 @@ function run_cvrp(app::Dict{String,Any})
     data = readCVRPData(app)
     if app["sol"] !== nothing
         sol = readsolution(app)
-        checksolution(data, sol) # checks the solution feasibility
-        app["ub"] = (sol.cost < app["ub"]) ? sol.cost : app["ub"] # update the upper bound if necessary
+        checksolution(data, sol, app) # checks the solution feasibility
+        app["ub"] = isnothing(app["ub"]) ? Float64(sol.cost) : min(app["ub"], sol.cost) # update the upper bound
+    end
+    if isnothing(app["ub"])
+        app["ub"] = 10000000.0
+        if !app["noheur"] && !app["nosolve"]
+            t = @elapsed (heur_routes, heur_cost) = cvrp_heuristic(data, app)
+            if isnothing(heur_routes)
+                println("Heuristic: no solution found with the number of routes in [$(app["minr"]), $(app["maxr"])]")
+            else
+                heur_sol = Solution(app["noround"] ? heur_cost : round(Int, heur_cost), heur_routes)
+                checksolution(data, heur_sol, app)
+                # ub = heuristic cost + 1: the solver must return a solution, at least as good as the heuristic one
+                app["ub"] = heur_cost + 1.0
+                println("Heuristic solution of cost $(heur_sol.cost) with $(length(heur_routes)) routes " *
+                        "($(round(t; digits=2)) s): ub = $(app["ub"])")
+            end
+        end
     end
 
     solution_found = false
     if !app["nosolve"]
-        (model, x) = build_model(data, app)
-
-        if app["show_complete_form"]
-            enum_paths, complete_form = get_complete_formulation(model, app["cfg"])
-            set_optimizer(complete_form, HiGHS.Optimizer) # set MIP solver
-            print_enum_paths(enum_paths)
-            println(complete_form)
-            optimize!(complete_form)
+        (status, solution_found, optimizer, x) = if isempty(app["tentative"])
+            solve_cvrp(data, app, instance_name, app["ub"])
+        else
+            solve_cvrp_tentative(data, app, instance_name, app["ub"])
         end
-
-        optimizer = VrpOptimizer(model, app["cfg"], instance_name)
-        set_cutoff!(optimizer, app["ub"])
-        (status, solution_found) = optimize!(optimizer)
         if solution_found
+            # checks the values of x against the problem definition, then recovers the routes from them
+            checksolution_x(data, Dict(e => get_value(optimizer, x[e]) for e in edges(data)),
+                            get_objective_value(optimizer), app)
             sol = getsolution(data, optimizer, x, get_objective_value(optimizer), app)
         end
     end
@@ -107,7 +201,7 @@ function run_cvrp(app::Dict{String,Any})
     println("########################################################")
     retval = Inf
     if solution_found || app["sol"] !== nothing # Is there a solution?
-        checksolution(data, sol)
+        checksolution(data, sol, app)
         print_routes(sol)
         println("Cost $(sol.cost)")
         if app["out"] !== nothing

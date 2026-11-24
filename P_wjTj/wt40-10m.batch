@@ -1,0 +1,28 @@
+# Tip: after a batch execution, call 'grep statistics: out/wt40-10m.out -h | cut -c13-' to get results.
+# julia src/run.jl -b wt40-10m.batch &> out/wt40-10m.out
+# Upper bounds are optimal costs + 1 (optima found by this demo, November 2026). wt40-10m-76 has optimum 0.
+instances/WT40-10m/wt40-10m-1.txt -u 502
+instances/WT40-10m/wt40-10m-6.txt -u 1585
+instances/WT40-10m/wt40-10m-11.txt -u 3930
+instances/WT40-10m/wt40-10m-16.txt -u 11988
+instances/WT40-10m/wt40-10m-21.txt -u 12061
+instances/WT40-10m/wt40-10m-26.txt -u 209
+instances/WT40-10m/wt40-10m-31.txt -u 2137
+instances/WT40-10m/wt40-10m-36.txt -u 4941
+instances/WT40-10m/wt40-10m-41.txt -u 10305
+instances/WT40-10m/wt40-10m-46.txt -u 10349
+instances/WT40-10m/wt40-10m-51.txt -u 243
+instances/WT40-10m/wt40-10m-56.txt -u 723
+instances/WT40-10m/wt40-10m-61.txt -u 5770
+instances/WT40-10m/wt40-10m-66.txt -u 11644
+instances/WT40-10m/wt40-10m-71.txt -u 14291
+instances/WT40-10m/wt40-10m-76.txt -u 1
+instances/WT40-10m/wt40-10m-81.txt -u 1416
+instances/WT40-10m/wt40-10m-86.txt -u 4920
+instances/WT40-10m/wt40-10m-91.txt -u 9662
+instances/WT40-10m/wt40-10m-96.txt -u 18581
+instances/WT40-10m/wt40-10m-101.txt -u 121
+instances/WT40-10m/wt40-10m-106.txt -u 809
+instances/WT40-10m/wt40-10m-111.txt -u 7767
+instances/WT40-10m/wt40-10m-116.txt -u 9855
+instances/WT40-10m/wt40-10m-121.txt -u 18815

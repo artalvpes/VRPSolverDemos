@@ -15,10 +15,10 @@ data/A/A-n54-k7.vrp -m 7 -M 7 -u 1168
 data/A/A-n55-k9.vrp -m 9 -M 9 -u 1074
 data/A/A-n61-k9.vrp -m 9 -M 9 -u 1035
 data/A/A-n60-k9.vrp -m 9 -M 9 -u 1355
-data/A/A-n62-k8.vrp -m 8 -M 8 -u 1291
+data/A/A-n62-k8.vrp -m 8 -M 8 -u 1289
 data/A/A-n63-k9.vrp -m 9 -M 9 -u 1617
-data/A/A-n63-k10.vrp -m 10 -M 10 -u 1316
-data/A/A-n64-k9.vrp -m 9 -M 9 -u 1403
+data/A/A-n63-k10.vrp -m 10 -M 10 -u 1315
+data/A/A-n64-k9.vrp -m 9 -M 9 -u 1402
 data/A/A-n65-k9.vrp -m 9 -M 9 -u 1175
 data/A/A-n69-k9.vrp -m 9 -M 9 -u 1160
 data/A/A-n80-k10.vrp -m 10 -M 10 -u 1764
