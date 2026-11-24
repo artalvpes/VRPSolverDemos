@@ -53,6 +53,80 @@ function getsolution(data::DataVRPTW, x, objval, optimizer)
     return Solution(objval, routes)
 end
 
+# Checks routes against the definition of the VRPTW, computing distances and times from the vertex data (assuming
+# nothing about how the routes were obtained, see Note 6.12 of the book "Optimizing with Column Generation"):
+# every customer is visited exactly once; the demand of each route is at most Q; leaving the depot at time 0, the
+# service of each customer starts within its time window (waiting is allowed), and the vehicle returns to the depot
+# before its due time; at most K routes; the total distance is cost. Throws an error otherwise.
+function checkroutes(data::DataVRPTW, routes, cost::Real)
+    V, Q, tol = data.G′.V′, veh_capacity(data), 1e-6
+    dist(i, j) = distance(V[i+1], V[j+1])
+    visits = zeros(Int, n(data))
+    total = 0.0
+    for (k, r) in enumerate(routes)
+        isempty(r) && error("Route #$k is empty")
+        load, time, prev = 0.0, 0.0, 0
+        for j in r
+            (1 <= j <= n(data)) || error("Route #$k visits $j, which is not a customer")
+            visits[j] += 1
+            (visits[j] > 1) && error("Customer $j is visited more than once")
+            load += V[j+1].demand
+            time = max(time + (prev == 0 ? 0 : V[prev+1].service_time) + dist(prev, j), V[j+1].start_tw)
+            (time > V[j+1].end_tw + tol) &&
+                error("Route #$k starts the service of customer $j at $time, after its due time $(V[j+1].end_tw)")
+            total += dist(prev, j)
+            prev = j
+        end
+        time += V[prev+1].service_time + dist(prev, 0)
+        (time > V[1].end_tw + tol) && error("Route #$k returns to the depot at $time, after its due time $(V[1].end_tw)")
+        total += dist(prev, 0)
+        (load > Q + tol) && error("Route #$k has demand $load > Q = $Q")
+    end
+    not_visited = findall(==(0), visits)
+    isempty(not_visited) || error("The following customers are not visited: $not_visited")
+    (length(routes) > data.K) && error("The solution has $(length(routes)) routes, more than K = $(data.K)")
+    (abs(total - cost) > 1e-6 * max(1, abs(cost))) &&
+        error("Cost calculated from the routes ($total) is different from the solution cost ($cost)")
+end
+
+# Checks the solution x of the model with value z: x_a binary, in-degree and out-degree 1 at every customer, and the
+# sum of c_a x_a (computed from the vertex data) equal to z; then the routes are recovered from x, without
+# assuming anything (subtours are detected), and checked with checkroutes. xval maps each arc to the value of x.
+function checksolution_x(data::DataVRPTW, xval::Dict, z::Float64)
+    V, nc, tol = data.G′.V′, n(data), 1e-6
+    for (a, v) in xval
+        (abs(v) > tol && abs(v - 1) > tol) && error("x[$a] = $v is not binary")
+    end
+    used = [a for (a, v) in xval if v > 0.5]
+    succ = Dict{Int,Vector{Int}}()
+    indeg = zeros(Int, nc)
+    for (i, j) in used
+        push!(get!(succ, i, Int[]), j)
+        j > 0 && (indeg[j] += 1)
+    end
+    for i in 1:nc
+        (indeg[i] != 1) && error("Customer $i has in-degree $(indeg[i]), not 1")
+        (length(get(succ, i, Int[])) != 1) && error("Customer $i has out-degree $(length(get(succ, i, Int[]))), not 1")
+    end
+    cost = sum(distance(V[i+1], V[j+1]) for (i, j) in used; init=0.0)
+    (abs(cost - z) > 1e-6 * max(1, abs(z))) && error("Cost calculated from x ($cost) is different from the objective value ($z)")
+    routes = Vector{Int}[]
+    for first in get(succ, 0, Int[])
+        r, j = Int[], first
+        while j != 0
+            (length(r) > nc) && error("A route starting with customer $first does not return to the depot")
+            push!(r, j)
+            j = succ[j][1]
+        end
+        push!(routes, r)
+    end
+    # customers not reached from the depot are in subtours
+    reached = Set(vcat(routes...))
+    in_subtours = [i for i in 1:nc if !(i in reached)]
+    isempty(in_subtours) || error("The customers $in_subtours are in subtours (not reached from the depot)")
+    checkroutes(data, routes, z)
+end
+
 function print_routes(solution)
     for (i, r) in enumerate(solution.routes)
         print("Route #$i: ")
