@@ -1,6 +1,6 @@
 # Tip: after a batch execution, call 'grep statistics: out/wt50-2m.out -h | cut -c13-' to get results.
 # julia src/run.jl -b wt50-2m.batch &> out/wt50-2m.out
-# Upper bounds are best known solution costs + 1 (from Pessoa et al. 2010, Table 3).
+# Upper bounds are optimal costs + 1 (optima from Pessoa et al. 2010, Table 3).
 instances/WT50-2m/wt50-2m-1.txt   -u 1269
 instances/WT50-2m/wt50-2m-6.txt   -u 14273
 instances/WT50-2m/wt50-2m-11.txt  -u 23029
@@ -24,5 +24,5 @@ instances/WT50-2m/wt50-2m-96.txt  -u 92823
 instances/WT50-2m/wt50-2m-101.txt -u 1
 instances/WT50-2m/wt50-2m-106.txt -u 1
 instances/WT50-2m/wt50-2m-111.txt -u 15565
-instances/WT50-2m/wt50-2m-116.txt -u 19610
+instances/WT50-2m/wt50-2m-116.txt -u 19609
 instances/WT50-2m/wt50-2m-121.txt -u 41697
