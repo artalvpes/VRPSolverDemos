@@ -180,6 +180,7 @@ function run_vsbpp(app::Dict{String,Any})
                 "(penalties $(sum(data.p[not_produced]; init=0)))")
         cost = check_solution(data, patterns)
         println("Cost $cost (objective value $(get_objective_value(optimizer)))")
+        println("Solution checked: feasible, cost $cost")
     elseif status == :Optimal
         println("Problem infeasible")
     else

@@ -192,6 +192,7 @@ function run_crsp(app::Dict{String,Any})
         checksolution(data, sol)
         print_ringstars(sol)
         println("Cost $(sol.cost)")
+        println("Solution checked: feasible, cost $(sol.cost)")
         if app["out"] !== nothing
             writesolution(app["out"], sol)
         end

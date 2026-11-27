@@ -218,6 +218,7 @@ function run_pdptw(app::Dict{String,Any})
     if solution_found || !isnothing(app["sol"]) # Is there a solution?
         print_routes(sol)
         println("Cost $(sol.cost)")
+        println("Solution checked: feasible, cost $(sol.cost)")
         if !isnothing(app["out"])
             writesolution(app["out"], sol)
         end

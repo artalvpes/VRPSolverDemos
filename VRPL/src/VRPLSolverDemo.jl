@@ -230,6 +230,7 @@ function run_vrpl(app::Dict{String,Any})
         checksolution(data, sol; minr=app["minr"], maxr=app["maxr"])
         print_routes(data, sol)
         println("Cost $(sol.cost)")
+        println("Solution checked: feasible, cost $(sol.cost)")
         if app["out"] !== nothing
             writesolution(app["out"], sol)
         end
