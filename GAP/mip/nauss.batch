@@ -1,0 +1,34 @@
+# Compact MIP (CPLEX) on the Nauss instances with 90 or 100 tasks and 25 or 30 machines (those of nauss.batch),
+# with ub = optimum + 1 (the values of the batch of the VRPSolver demo) and a time limit of 60 s.
+# Run from the GAP folder: julia mip/gap_mip.jl -b mip/nauss.batch &> out/mip_nauss.out
+# Tip: 'grep statistics: <output> -h | cut -c13-' gives LaTeX rows: instance & LP bound & nodes & best bound & solution & time
+data/Nauss/gapD-25-90-e0.txt -u 5682 --timelimit 60
+data/Nauss/gapD-25-90-e1.txt -u 5628 --timelimit 60
+data/Nauss/gapD-25-90-e2.txt -u 5677 --timelimit 60
+data/Nauss/gapD-25-90-e3.txt -u 5658 --timelimit 60
+data/Nauss/gapD-25-90-e4.txt -u 5648 --timelimit 60
+data/Nauss/gapD-25-90-e5.txt -u 5622 --timelimit 60
+data/Nauss/gapD-25-90-e6.txt -u 5658 --timelimit 60
+data/Nauss/gapD-25-90-e7.txt -u 5615 --timelimit 60
+data/Nauss/gapD-25-90-e8.txt -u 5575 --timelimit 60
+data/Nauss/gapD-25-90-e9.txt -u 5661 --timelimit 60
+data/Nauss/gapD-25-100-e0.txt -u 6350 --timelimit 60
+data/Nauss/gapD-25-100-e1.txt -u 6328 --timelimit 60
+data/Nauss/gapD-25-100-e2.txt -u 6304 --timelimit 60
+data/Nauss/gapD-25-100-e3.txt -u 6284 --timelimit 60
+data/Nauss/gapD-25-100-e4.txt -u 6306 --timelimit 60
+data/Nauss/gapD-25-100-e5.txt -u 6290 --timelimit 60
+data/Nauss/gapD-25-100-e6.txt -u 6228 --timelimit 60
+data/Nauss/gapD-25-100-e7.txt -u 6239 --timelimit 60
+data/Nauss/gapD-25-100-e8.txt -u 6249 --timelimit 60
+data/Nauss/gapD-25-100-e9.txt -u 6302 --timelimit 60
+data/Nauss/gapD-30-100-e0.txt -u 6271 --timelimit 60
+data/Nauss/gapD-30-100-e1.txt -u 6300 --timelimit 60
+data/Nauss/gapD-30-100-e2.txt -u 6163 --timelimit 60
+data/Nauss/gapD-30-100-e3.txt -u 6307 --timelimit 60
+data/Nauss/gapD-30-100-e4.txt -u 6323 --timelimit 60
+data/Nauss/gapD-30-100-e5.txt -u 6285 --timelimit 60
+data/Nauss/gapD-30-100-e6.txt -u 6330 --timelimit 60
+data/Nauss/gapD-30-100-e7.txt -u 6359 --timelimit 60
+data/Nauss/gapD-30-100-e8.txt -u 6373 --timelimit 60
+data/Nauss/gapD-30-100-e9.txt -u 6434 --timelimit 60

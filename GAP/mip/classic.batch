@@ -1,0 +1,10 @@
+# Compact MIP (CPLEX) on the OR-Library classic instances of type D,
+# with ub = optimum + 1 (the values of the batch of the VRPSolver demo) and a time limit of 60 s.
+# Run from the GAP folder: julia mip/gap_mip.jl -b mip/classic.batch &> out/mip_classic.out
+# Tip: 'grep statistics: <output> -h | cut -c13-' gives LaTeX rows: instance & LP bound & nodes & best bound & solution & time
+data/Classic/gapD-5-100.txt -u 6354 --timelimit 60
+data/Classic/gapD-5-200.txt -u 12743 --timelimit 60
+data/Classic/gapD-10-100.txt -u 6348 --timelimit 60
+data/Classic/gapD-10-200.txt -u 12431 --timelimit 60
+data/Classic/gapD-20-100.txt -u 6186 --timelimit 60
+data/Classic/gapD-20-200.txt -u 12245 --timelimit 60
