@@ -50,6 +50,7 @@ bash classic.sh                                                                 
 | `--noheur` | without `-u`, no heuristic: no upper bound |
 | `-t D1 D2` (or `-T`) | tentative upper bounds: solve the root **without** an upper bound, then try ub = LB + D1, LB + D1 + D2, ... until a solution is found |
 | `-d` | diving heuristic of Pessoa et al. (2020) at the root, useful when no good upper bound is known |
+| `--timelimit` | time limit in seconds of each VRPSolver run (the configs of the demo have none) |
 | `-c` | configuration file |
 | `-b` | batch file: one line of options per instance |
 
@@ -63,6 +64,46 @@ Batches:
 | `nauss.batch` | the 30 Nauss instances of Pessoa et al. (2020), ub = optimum + 1 |
 | `nauss-literature-ub.batch`, `nauss-diving.batch`, `nauss-tentative.batch` | the same 30 instances with the upper bounds of the literature, with the diving heuristic and with tentative upper bounds |
 | `nauss-hard.batch` | larger Nauss instances, out of reach of an exact solution in reasonable time |
+
+## The compact MIP, for comparison
+
+To see what VRPSolver gains, the folder `mip/` has a script that gives the same instances to CPLEX, through JuMP,
+with the textbook formulation of the GAP:
+
+```
+min  Σ_t Σ_k c_tk x_tk
+s.t. Σ_k x_tk = 1             t in T   (each task goes to one machine)
+     Σ_t w_tk x_tk <= Q_k     k in K   (capacity of each machine)
+     x_tk in {0, 1}
+```
+
+For each instance, the script:
+
+1. solves the LP relaxation and prints its value, the bound that CPLEX starts from (option `--nolp` skips this);
+2. runs CPLEX on the MIP, with the time limit and the upper bound given;
+3. checks the solution found, if any, against the definition of the problem, and prints it;
+4. prints a `statistics:` line: instance, LP bound, nodes, best bound, solution (`--` if none) and time.
+
+To run it, from the `GAP` folder:
+
+```bash
+julia mip/gap_mip.jl data/Classic/gapD-5-100.txt --ub 6354 --timelimit 60
+julia mip/gap_mip.jl -b mip/classic.batch &> out/mip_classic.out      # the 6 classic instances of type D
+julia mip/gap_mip.jl -b mip/nauss.batch &> out/mip_nauss.out          # the 30 Nauss instances of nauss.batch
+```
+
+| Option | Meaning |
+|---|---|
+| `-u` | upper bound: CPLEX only looks for solutions of cost below it, as `-u` of the demo |
+| `--timelimit` | time limit in seconds (0, the default: no limit) |
+| `--threads` | CPLEX threads (default 1) |
+| `--nolp` | do not solve the LP relaxation first |
+| `-b` | batch file: one line of options per instance |
+
+The first run installs JuMP, CPLEX.jl and ArgParse in the environment of `mip/`; CPLEX.jl needs the environment
+variable `CPLEX_STUDIO_BINARIES` (the folder of the CPLEX library, for example
+`$CPLEX_ROOT/cplex/bin/x86-64_linux/`). The batches `mip/classic.batch` and `mip/nauss.batch` use the upper bounds
+optimum + 1 of the demo batches (including the instances commented out there) and 60 s per instance.
 
 Results: `RESULTS.md` (`classic.batch` and `nauss.batch` with the current configurations, 600 s),
 `CLASSIC_RESULTS.md` (classic instances, compared with the literature) and `NAUSS_BENCHMARK.md` (the four upper bound

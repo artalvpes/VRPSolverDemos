@@ -1,12 +1,20 @@
 # Compact MIP formulation of the generalized assignment problem, solved by CPLEX. It gives reference values
 # (optima, bounds) for the GAP demo and helps to choose instances that are within the reach of the tools.
 #
-# usage: julia --project=. gap_mip.jl [--threads N] [--timelimit S] [--ub UB] [--nolp] instance1 [instance2 ...]
+# usage: julia mip/gap_mip.jl [--threads N] [--timelimit S] [--ub UB] [--nolp] instance1 [instance2 ...]
+#        julia mip/gap_mip.jl -b mip/classic.batch
+# (from the GAP folder; the first run installs JuMP, CPLEX.jl and ArgParse, and CPLEX.jl needs the environment
+# variable CPLEX_STUDIO_BINARIES, see the README of the demo)
 #
 #   min  sum_{t,k} c_tk x_tk
 #   s.t. sum_k x_tk = 1               t in T  (each task is assigned to one machine)
 #        sum_t w_tk x_tk <= Q_k       k in K  (capacity of machine k)
 #        x_tk in {0, 1}
+
+# the Julia environment of this folder (Project.toml), whatever the current folder is
+using Pkg
+Pkg.activate(@__DIR__; io=devnull)
+Pkg.instantiate()
 
 using JuMP, CPLEX, ArgParse, Printf
 
@@ -52,8 +60,8 @@ function solve(path::String, opts)
     set_attribute(model, "CPXPARAM_Threads", opts["threads"])
     set_attribute(model, "CPXPARAM_MIP_Tolerances_MIPGap", 0.0) # exact optimality (default relative gap is 1e-4)
     opts["timelimit"] > 0 && set_attribute(model, "CPXPARAM_TimeLimit", opts["timelimit"])
-    # Cutoff: only solutions with cost <= ub are searched (same role as -u in the VRPSolver demo)
-    isnothing(opts["ub"]) || set_attribute(model, "CPXPARAM_MIP_Tolerances_UpperCutoff", opts["ub"])
+    # Cutoff: only solutions with cost < ub are searched, as with -u in the VRPSolver demo (the costs are integer)
+    isnothing(opts["ub"]) || set_attribute(model, "CPXPARAM_MIP_Tolerances_UpperCutoff", opts["ub"] - 0.5)
     println("Instance $name: $(length(K)) machines, $(length(T)) tasks")
     lp = NaN
     if !opts["nolp"]
@@ -99,7 +107,7 @@ function main(args)
     @add_arg_table s begin
         "instances"
         help = "Instance file paths"
-        nargs = '+'
+        nargs = '*'
         "--threads"
         help = "Number of CPLEX threads"
         arg_type = Int
@@ -109,15 +117,29 @@ function main(args)
         arg_type = Float64
         default = 0.0
         "--ub", "-u"
-        help = "Upper bound (cutoff): CPLEX only looks for solutions with cost <= ub"
+        help = "Upper bound: CPLEX only looks for solutions with cost < ub (as -u in the VRPSolver demo)"
         arg_type = Float64
         "--nolp"
         help = "Do not solve the LP relaxation first"
         action = :store_true
+        "--batch", "-b"
+        help = "Batch file: one line of options per instance (lines starting with # are comments)"
     end
     opts = parse_args(args, s)
-    for path in opts["instances"]
-        solve(path, opts)
+    if !isnothing(opts["batch"])
+        for line in readlines(opts["batch"])
+            (isempty(strip(line)) || startswith(strip(line), "#")) && continue
+            line_opts = parse_args(split(line), s)
+            for path in line_opts["instances"]
+                solve(String(path), line_opts)
+            end
+        end
+    elseif isempty(opts["instances"])
+        ArgParse.show_help(s; exit_when_done=false)
+    else
+        for path in opts["instances"]
+            solve(path, opts)
+        end
     end
 end
 

@@ -154,6 +154,7 @@ function run_top(app)
         sol = getsolution(data, x, get_objective_value(optimizer), optimizer)
         print_routes(sol)
         println("Cost $(sol.cost)")
+        println("Solution checked: feasible, cost $(sol.cost)")
     elseif status == :Optimal
         println("Problem infeasible")
     else

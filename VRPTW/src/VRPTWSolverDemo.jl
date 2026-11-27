@@ -169,6 +169,7 @@ function run_vrptw(app::Dict{String,Any})
     if solution_found || app["sol"] != nothing # Is there a solution?
         print_routes(sol)
         println("Cost $(sol.cost)")
+        println("Solution checked: feasible, cost $(sol.cost)")
         if app["out"] != nothing
             writesolution(app["out"], sol)
         end

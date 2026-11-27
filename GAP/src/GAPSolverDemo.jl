@@ -38,6 +38,11 @@ function parse_commandline(args_array::Array{String,1}, appfolder::String)
                "(DivingHeurUseDepthLimit = 0, MaxLDSdepth = 3, MaxLDSbreadth = 2), " *
                "useful when no good upper bound is known"
         action = :store_true
+        "--timelimit"
+        help = "Time limit in seconds of each VRPSolver run (GlobalTimeLimit; 0, the default: the one of the " *
+               "configuration file, none in the configs of the demo)"
+        arg_type = Float64
+        default = 0.0
     end
     return parse_args(args_array, s)
 end
@@ -62,7 +67,8 @@ end
 # (for the solution and the statistics) and the variables.
 function solve_gap(data::DataGap, app::Dict{String,Any}, instance_name, ub::Float64; root_only::Bool=false)
     (model, x) = build_model(data)
-    params = vcat(app["diving"] ? DIVING_PARAMS : String[], root_only ? ROOT_ONLY_PARAMS : String[])
+    params = vcat(app["diving"] ? DIVING_PARAMS : String[], root_only ? ROOT_ONLY_PARAMS : String[],
+                  app["timelimit"] > 0 ? ["GlobalTimeLimit = $(round(Int, app["timelimit"]))"] : String[])
     cfg = isempty(params) ? app["cfg"] : cfg_with_params(app["cfg"], params)
     optimizer = VrpOptimizer(model, cfg, instance_name)
     isempty(params) || rm(cfg) # the parameters are read when the optimizer is created

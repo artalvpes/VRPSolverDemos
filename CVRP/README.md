@@ -31,6 +31,18 @@ Configuration: `config/CVRP.cfg` (original RCSP solver, `RCSPuseMetaSolver = 0`)
 alternative named after the instance CMT13 (rank-1 cuts with arc memory and at most 3 rows, a smaller tailing-off
 threshold, a time limit on the reduced cost fixing); choose it with `-c config/CMT13.cfg`.
 
+## Upper bounds and the heuristic
+
+When neither `-u` nor `-T` is given, `src/heuristic.jl` gives the upper bound: its cost. The solver then looks for a
+cheaper solution; if it proves that there is none, the heuristic solution is optimal and is printed as the answer.
+(With `-u`, the upper bound is meant to be the cost of a solution not known yet, plus 1.) `-H` runs the heuristic in
+any case.
+It builds a solution by the Clarke and Wright savings (several values of λ), adjusts the number of routes to
+[`-m`, `-M`] (by a bin packing of the demands when the fleet is tight), and improves it by a local search with
+granular neighbourhoods (relocation, exchange, 2-opt and 2-opt*, each customer tried with its nearest customers)
+inside a ruin and recreate loop, until its time limit. On the 138 instances of the batches (all lines, with their
+number of routes), it finds the optimum of 69 and is 0.34% above the optimum on average (at most 2.7%).
+
 ## Running
 
 From the `CVRP` folder, with `BAPCOD_RCSP_LIB` set to the VRPSolver library:
@@ -47,8 +59,10 @@ bash A.sh                                                             # the same
 | Option | Meaning |
 |---|---|
 | `-u` | upper bound (the solver looks for a solution of cost below it) |
-| `--noheur` | without `-u`, no heuristic: no upper bound |
+| `--noheur` | without `-u` and `-T`, no heuristic: no upper bound |
 | `-T D1 D2` | tentative upper bounds: solve the root, then try ub = LB + D1, LB + D1 + D2, ... until a solution is found |
+| `-H` | run the heuristic also with `-u` or `-T`: the ub is then the smaller of `-u` and the heuristic cost |
+| `--heur_time`, `--heur_neighbors`, `--heur_seed` | time limit of the heuristic (default min(20, 2 + 0.1 n) s), nearest customers tried by its local search (default 20), random seed (default 1) |
 | `-m`, `-M` | minimum and maximum number of routes |
 | `-r` | do not round the distances |
 | `-o`, `-t` | write the solution (CVRPLIB format) and a TikZ figure |
@@ -60,6 +74,9 @@ bash A.sh                                                             # the same
 
 Every solution is checked against the definition of the problem (degrees, capacity, route length, number of routes,
 cost). The TikZ figure draws each route in its own colour; to get a PDF: `pdflatex A-n37-k6.tex`.
+
+**C++ version:** `cpp/` has the same demo written with the C++ interface of BaPCod (same command line, configuration
+and outputs; it starts in a fraction of a second, and can use the heuristic HGS-CVRP); see `cpp/README.md`.
 
 The batches (`A`, `B`, `EM`, `F`, `P`, `X`) give the optimal costs + 1 as upper bounds; the instances not solved in a
 few minutes are commented out. Results: `RESULTS.md`.

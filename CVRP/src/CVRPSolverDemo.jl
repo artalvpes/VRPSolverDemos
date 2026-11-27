@@ -7,6 +7,7 @@ include("branching.jl")
 include("model.jl")
 include("solution.jl")
 include("heuristic.jl")
+include("hgs.jl")
 
 function parse_commandline(args_array::Vector{String}, appfolder::String)
     s = ArgParseSettings(
@@ -19,10 +20,30 @@ function parse_commandline(args_array::Vector{String}, appfolder::String)
         help = "Configuration file path"
         default = "$appfolder/../config/CVRP.cfg"
         "--ub", "-u"
-        help = "Upper bound (primal bound). If not given, the heuristic of heuristic.jl gives it (cost + 1)."
+        help = "Upper bound (primal bound): the solver looks for solutions of cost below it. If neither it nor --tentative " *
+               "is given, the heuristic gives it (its cost; if no cheaper solution exists, the heuristic one is optimal)."
         arg_type = Float64
         "--noheur"
-        help = "Without --ub, do not run the heuristic (no upper bound)"
+        help = "Without --ub and --tentative, do not run the heuristic (no upper bound)"
+        action = :store_true
+        "--heuristic", "-H"
+        help = "Run the heuristic also with --ub or --tentative: the upper bound is then the smaller of --ub and the " *
+               "heuristic cost, and it is the largest of the tentative upper bounds"
+        action = :store_true
+        "--heur_time"
+        help = "Time limit of the heuristic in seconds (default: min(20, 2 + 0.1 n), n customers)"
+        arg_type = Float64
+        "--heur_neighbors"
+        help = "Number of nearest customers tried by the local search of the heuristic"
+        arg_type = Int
+        default = 20
+        "--heur_seed"
+        help = "Seed of the random choices of the heuristic"
+        arg_type = Int
+        default = 1
+        "--hgs"
+        help = "Use HGS-CVRP (Vidal 2022) as the heuristic, with the time limit --heur_time and the seed --heur_seed; " *
+               "the environment variable HGS_CVRP_LIB gives the path of its shared library libhgscvrp (see src/hgs.jl)"
         action = :store_true
         "--tentative", "-T"
         help = "Tentative upper bounds DELTA1 DELTA2: solve the root with the upper bound to get its lower bound LB, " *
@@ -61,7 +82,7 @@ function parse_commandline(args_array::Vector{String}, appfolder::String)
         "--batch", "-b"
         help = "batch file path"
         "--edge_cuts", "-e"
-        help = "Use edge cuts via cut callback."
+        help = "Use edge cuts via cut callback (illustrative only: the cut is useless for the CVRP)."
         action = :store_true
         "--cluster_branching", "-B"
         help = "Cluster branching parameter value (0 = disabled)"
@@ -166,22 +187,29 @@ function run_cvrp(app::Dict{String,Any})
         checksolution(data, sol, app) # checks the solution feasibility
         app["ub"] = isnothing(app["ub"]) ? Float64(sol.cost) : min(app["ub"], sol.cost) # update the upper bound
     end
-    if isnothing(app["ub"])
-        app["ub"] = 10000000.0
-        if !app["noheur"] && !app["nosolve"]
-            t = @elapsed (heur_routes, heur_cost) = cvrp_heuristic(data, app)
-            if isnothing(heur_routes)
-                println("Heuristic: no solution found with the number of routes in [$(app["minr"]), $(app["maxr"])]")
-            else
-                heur_sol = Solution(app["noround"] ? heur_cost : round(Int, heur_cost), heur_routes)
-                checksolution(data, heur_sol, app)
-                # ub = heuristic cost + 1: the solver must return a solution, at least as good as the heuristic one
-                app["ub"] = heur_cost + 1.0
-                println("Heuristic solution of cost $(heur_sol.cost) with $(length(heur_routes)) routes " *
-                        "($(round(t; digits=2)) s): ub = $(app["ub"])")
+    # The heuristic runs by default when there is neither an upper bound (--ub, --sol) nor tentative upper bounds,
+    # and always with --heuristic
+    run_heur = !app["nosolve"] && (app["heuristic"] || (isnothing(app["ub"]) && isempty(app["tentative"]) && !app["noheur"]))
+    heur_sol = nothing # the heuristic solution, when its cost is the upper bound
+    if run_heur
+        t = @elapsed (heur_routes, heur_cost) = app["hgs"] ? hgs_heuristic(data, app) : cvrp_heuristic(data, app)
+        if isnothing(heur_routes)
+            println("Heuristic: no solution found with the number of routes in [$(app["minr"]), $(app["maxr"])]")
+        else
+            hs = Solution(app["noround"] ? heur_cost : round(Int, heur_cost), heur_routes)
+            checksolution(data, hs, app)
+            # ub = heuristic cost: the solver looks for a better solution; if it proves that there is none, the
+            # heuristic solution is optimal and is the answer (ub = optimum + 1 is for a solution not known yet)
+            if isnothing(app["ub"]) || heur_cost <= app["ub"]
+                app["ub"] = heur_cost
+                heur_sol = hs
             end
+            hs = nothing
+            println("$(app["hgs"] ? "HGS-CVRP" : "Heuristic") solution of cost $(round(heur_cost; digits=2)) with $(length(heur_routes)) routes " *
+                    "($(round(t; digits=2)) s): ub = $(app["ub"])")
         end
     end
+    isnothing(app["ub"]) && (app["ub"] = 10000000.0)
 
     solution_found = false
     if !app["nosolve"]
@@ -195,6 +223,14 @@ function run_cvrp(app::Dict{String,Any})
             checksolution_x(data, Dict(e => get_value(optimizer, x[e]) for e in edges(data)),
                             get_objective_value(optimizer), app)
             sol = getsolution(data, optimizer, x, get_objective_value(optimizer), app)
+        elseif !isnothing(heur_sol)
+            # no solution of cost below the heuristic one: it is optimal if the search was complete
+            sol = heur_sol
+            solution_found = true
+            println(status == :Optimal ?
+                    "No solution of cost below $(app["ub"]): the heuristic solution is optimal" :
+                    "No better solution found before the search stopped: the heuristic solution is returned " *
+                    "(not proven optimal)")
         end
     end
 
@@ -204,6 +240,7 @@ function run_cvrp(app::Dict{String,Any})
         checksolution(data, sol, app)
         print_routes(sol)
         println("Cost $(sol.cost)")
+        println("Solution checked: feasible, cost $(sol.cost)")
         if app["out"] !== nothing
             writesolution(app["out"], sol)
         end

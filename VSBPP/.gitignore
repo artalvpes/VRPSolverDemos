@@ -1,0 +1,6 @@
+out/
+Manifest.toml
+BaPTree.dot
+curprob.*
+curparams.prm
+myprob.lp

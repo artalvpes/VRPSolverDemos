@@ -14,8 +14,17 @@ end
 # Copy the custom resource implementation files to the BaPCod/RCSP library and compile it
 build_path = splitdir(splitdir(ENV["BAPCOD_RCSP_LIB"])[1])[1]
 bapcod_root = splitdir(build_path)[1]
-run(`cp -p src/meta_solver/rcsp_custom_res_impl.hpp $bapcod_root/Tools/rcsp/include_dev`)
-run(`cp -p src/meta_solver/rcsp_custom_res_impl.cpp $bapcod_root/Tools/rcsp/src`)
+# A file is copied only when its content differs, and it gets the current modification time (not the one of the
+# demo file), so that make always sees the change: with cp -p, an old time could leave the library built with
+# another implementation (e.g. the unimplemented template shipped with the library)
+for (file, dir) in [("rcsp_custom_res_impl.hpp", "include_dev"), ("rcsp_custom_res_impl.cpp", "src")]
+    src = joinpath("src", "meta_solver", file)
+    dst = joinpath(bapcod_root, "Tools", "rcsp", dir, file)
+    if !isfile(dst) || read(src) != read(dst)
+        cp(src, dst; force=true)
+        touch(dst)
+    end
+end
 base_dir = pwd()
 cd(build_path)
 run(`make -j4 bapcod-shared`)
