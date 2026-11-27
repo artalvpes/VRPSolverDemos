@@ -8,6 +8,10 @@
 
 **Upper bounds:** a good upper bound (option `--ub`/`-u`) is very important for the performance of the branch-cut-and-price. When no upper bound is given, the demos run a simple primal heuristic (`src/heuristic.jl`; option `--noheur` to disable it) and use its cost + 1 (or + the smallest cost step) as the upper bound. The option `--tentative`/`-T DELTA1 DELTA2` (also `-t` in the demos without TikZ figures) solves the root node first, giving its lower bound LB, and then the problem with the upper bounds LB + DELTA1, LB + DELTA1 + DELTA2, LB + DELTA1 + 2 DELTA2, ... until a solution is found; at the end it prints a valid lower bound, also when the last run stops at the time limit. The batch files give the optimal cost + 1 as upper bound, for the instances solved in a reasonable time; the harder ones are commented out.
 
+**C++ demos:** the CVRP and P||ΣwjTj demos also exist in C++, written with the C++ interface of BaPCod
+(`CVRP/cpp`, `P_wjTj/cpp`): the same command line, configuration files and outputs as the Julia demos, without the
+start time of Julia. They are built with CMake against an installed BaPCod; see their `README.md`.
+
 **Quick test:** `bash quick_test.sh`, from the root of this repository, solves one small instance of each demo (each in a few seconds, plus the start of Julia) and prints a summary; set `CCVRP_LIB` to include the CCVRP demo, which needs a library built with its custom resource (see `CCVRP/README.md`). Each demo folder has its own `README.md`.
 
 **Acknowledgements:** These demos use the Julia interface [VrpSolver.jl](https://github.com/tbulhoes/VrpSolver.jl) developed jointly with Teobaldo Bulhões by his initiative.

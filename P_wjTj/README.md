@@ -56,3 +56,7 @@ bash wt40-10m.sh                                                     # the same 
 Every solution is checked against the definition of the problem (each job once, no overlap on a machine, cost). The
 batches give the optimal costs + 1 as upper bounds; run the batches with many jobs and few machines one instance per
 process (`.sh`), since the memory is not released between the instances of a batch. Results: `RESULTS.md`.
+
+**C++ version:** `cpp/` has the same demo written with the C++ interface of BaPCod (same command line, configuration
+and outputs). It starts at once and builds the model directly in BaPCod, without the JuMP model of one variable per
+arc: on `wt40-10m.batch`, 78 s and 1.8 GB against 164 s and 3.7 GB for Julia, with the same costs. See `cpp/README.md`.
