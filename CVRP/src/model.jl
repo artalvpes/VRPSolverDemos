@@ -95,6 +95,9 @@ function build_model(data::DataCVRP, app::Dict{String,Any})
 
     add_cluster_branching!(cvrp, data, app["cluster_branching"], x)
 
+    # Illustrative only: this callback shows how a user cut separator is written with add_cut_callback! and
+    # add_dynamic_constr!. The cut x_e <= 1 for the edges not incident to the depot is valid but useless in practice
+    # for the CVRP. Off by default (option -e).
     function edge_ub_callback()
         for (i, j) in E
             e = (i, j)
